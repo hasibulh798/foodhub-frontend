@@ -19,14 +19,14 @@ export default function CategoriesSection() {
   return (
     <section className="py-12 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-6">Browse by Category</h2>
+        <h2 className="text-2xl text-center font-bold mb-6">Browse by Category</h2>
 
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           {categories.map((category) => (
             <div
               key={category.id}
               onClick={() => setActive(category.id)}
-              className={`min-w-[120px] cursor-pointer rounded-xl p-4 flex flex-col items-center justify-center shadow-sm transition 
+              className={`min-w-30 cursor-pointer rounded-xl p-4 flex flex-col items-center justify-center shadow-sm  hover:scale-105 transition duration-300
                 ${
                   active === category.id
                     ? "bg-red-500 text-white"

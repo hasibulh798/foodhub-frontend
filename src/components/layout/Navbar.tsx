@@ -1,258 +1,200 @@
 "use client";
 
-import { Menu } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
 
-interface MenuItem {
-  title: string;
+interface User {
+  name: string;
+  image?: string | null;
+}
+
+type NavMenu = {
+  name: string;
   url: string;
-  description?: string;
-  icon?: React.ReactNode;
-  items?: MenuItem[];
-}
+};
 
-interface NavbarProps {
-  className?: string;
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title?: string;
-    className?: string;
-  };
-  menu?: MenuItem[];
-  auth?: {
-    login: {
-      title: string;
-      url: string;
-    };
-    signup: {
-      title: string;
-      url: string;
-    };
-  };
-}
+export default function Navbar() {
+  const navigationMenuList: NavMenu[] = [
+    { name: "Home", url: "/" },
+    { name: "Restaurants", url: "/restaurants" },
+    { name: "About", url: "/about" },
+    { name: "Contact", url: "/contact" },
+  ];
 
-const Navbar = ({
-  logo = {
-    url: "http://localhost:3000",
-    src: "https://imgs.search.brave.com/WPIZhMDutBXHt37_iRdUlfgFq8OcM6eoOMMP83Vk4Lo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9icmFu/ZC5mb29kaHViLmNv/bS9pbWFnZXMvcG5n/L2xvZ29fdmVydGlj/YWxfbmV3LnBuZw",
-    alt: "logo",
-    title: "FoodHub",
-  },
-  menu = [
-    { title: "Home", url: "/" },
-    {
-      title: "Resturant",
-      url: "http://localhost:3000/resturants",
-    },
-    {
-      title: "About",
-      url: "http://localhost:3000/about",
-    },
-    {
-      title: "Contact",
-      url: "http://localhost:3000/contact",
-    },
-  ],
-  auth = {
-    login: { title: "Log in", url: "http://localhost:3000/login" },
-    signup: { title: "Sign Up", url: "http://localhost:3000/signup" },
-  },
-  className,
-}: NavbarProps) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Get session user
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await authClient.getSession();
+      setUser(data?.user ?? null);
+    };
+    getUser();
+  }, []);
+
+  // Logout handler
+  const handleLogout = async () => {
+    await authClient.signOut();
+    setUser(null);
+    setOpen(false);
+  };
+
   return (
-    <section className={cn("py-4 bg-amber-400 px-16", className)}>
-      <div className="container">
-        {/* Desktop Menu */}
-        <nav className="hidden items-center  justify-between lg:flex">
-          <div className="flex items-center gap-6">
-            {/* Logo */}
-            <Link href={logo.url} className="flex items-center gap-2">
-              <img
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
-              <span className="text-lg font-semibold tracking-tighter">
-                {logo.title}
-              </span>
-            </Link>
-            <div className="flex items-center">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  {menu.map((item) => renderMenuItem(item))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              asChild
-              className="bg-red-500 text-white font-bold outline-0 rounded-2xl"
-              size="lg"
-            >
-              <Link href={auth.login.url}>{auth.login.title}</Link>
-            </Button>
-            <Button
-              asChild
-              className="bg-red-500 text-white font-bold outline-0 rounded-2xl"
-              size="lg"
-            >
-              <Link href={auth.signup.url}>{auth.signup.title}</Link>
-            </Button>
-          </div>
-        </nav>
+    <nav className="h-16 bg-amber-300 shadow-sm sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-8">
+          {/* Logo */}
+          <Link href="/">
+            <Image
+              src="/logo.webp"
+              alt="logo"
+              width={48}
+              height={48}
+              className="object-contain"
+            />
+          </Link>
 
-        {/* Mobile Menu */}
-        <div className="block lg:hidden">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href={logo.url} className="flex items-center gap-2">
-              <img
-                src={logo.src}
-                className="max-h-8 dark:invert"
-                alt={logo.alt}
-              />
-            </Link>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <Link href={logo.url} className="flex items-center gap-2">
-                      <img
-                        src={logo.src}
-                        className="max-h-8 dark:invert"
-                        alt={logo.alt}
-                      />
-                    </Link>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="flex w-full flex-col gap-4"
-                  >
-                    {menu.map((item) => renderMobileMenuItem(item))}
-                  </Accordion>
-
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <Link href={auth.login.url}>{auth.login.title}</Link>
-                    </Button>
-                    <Button asChild>
-                      <Link href={auth.signup.url}>{auth.signup.title}</Link>
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-6 text-lg font-medium">
+            {navigationMenuList.map((menu) => (
+              <Link
+                key={menu.url}
+                href={menu.url}
+                className="hover:text-red-500 transition"
+              >
+                {menu.name}
+              </Link>
+            ))}
           </div>
         </div>
+
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-4">
+          {/* Desktop Auth */}
+          {!user ? (
+            <div className="hidden md:flex items-center gap-3">
+              <Link
+                href="/login"
+                className="bg-red-500 text-white px-4 py-2 rounded-full text-sm hover:bg-red-600 transition"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="border border-red-500 text-red-500 px-4 py-2 rounded-full text-sm hover:bg-red-500 hover:text-white transition"
+              >
+                Sign Up
+              </Link>
+            </div>
+          ) : (
+            <div className="relative hidden md:block">
+              <button
+                onClick={() => setOpen(!open)}
+                className="flex items-center gap-2"
+              >
+                {user.image ? (
+                  <Image
+                    src={user.image}
+                    alt="profile"
+                    width={36}
+                    height={36}
+                    className="rounded-full object-cover border"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center">
+                    {user.name.charAt(0)}
+                  </div>
+                )}
+              </button>
+
+              {open && (
+                <div className="absolute right-0 mt-3 w-44 bg-white shadow-lg rounded-xl py-2 text-sm">
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden"
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
-    </section>
-  );
-};
 
-const renderMenuItem = (item: MenuItem) => {
-  if (item.items) {
-    return (
-      <NavigationMenuItem key={item.title}>
-        <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-        <NavigationMenuContent className="bg-popover text-popover-foreground">
-          {item.items.map((subItem) => (
-            <NavigationMenuLink asChild key={subItem.title} className="w-80">
-              <SubMenuLink item={subItem} />
-            </NavigationMenuLink>
+      {/* Mobile Dropdown */}
+      {mobileOpen && (
+        <div className="md:hidden bg-white shadow-md px-4 py-4 space-y-3">
+          {navigationMenuList.map((menu) => (
+            <Link
+              key={menu.url}
+              href={menu.url}
+              className="block"
+              onClick={() => setMobileOpen(false)}
+            >
+              {menu.name}
+            </Link>
           ))}
-        </NavigationMenuContent>
-      </NavigationMenuItem>
-    );
-  }
 
-  return (
-    <NavigationMenuItem key={item.title}>
-      <NavigationMenuLink
-        href={item.url}
-        className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground"
-      >
-        {item.title}
-      </NavigationMenuLink>
-    </NavigationMenuItem>
+          <hr />
+
+          {!user ? (
+            <>
+              <Link
+                href="/login"
+                className="block text-red-500"
+                onClick={() => setMobileOpen(false)}
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="block text-red-500"
+                onClick={() => setMobileOpen(false)}
+              >
+                Sign Up
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/profile"
+                className="block"
+                onClick={() => setMobileOpen(false)}
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="block text-red-500"
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </nav>
   );
-};
-
-const renderMobileMenuItem = (item: MenuItem) => {
-  if (item.items) {
-    return (
-      <AccordionItem key={item.title} value={item.title} className="border-b-0">
-        <AccordionTrigger className="text-md py-0 font-semibold hover:no-underline">
-          {item.title}
-        </AccordionTrigger>
-        <AccordionContent className="mt-2">
-          {item.items.map((subItem) => (
-            <SubMenuLink key={subItem.title} item={subItem} />
-          ))}
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }
-
-  return (
-    <a key={item.title} href={item.url} className="text-md font-semibold">
-      {item.title}
-    </a>
-  );
-};
-
-const SubMenuLink = ({ item }: { item: MenuItem }) => {
-  return (
-    <a
-      className="flex min-w-80 flex-row gap-4 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none hover:bg-muted hover:text-accent-foreground"
-      href={item.url}
-    >
-      <div className="text-foreground">{item.icon}</div>
-      <div>
-        <div className="text-sm font-semibold">{item.title}</div>
-        {item.description && (
-          <p className="text-sm leading-snug text-muted-foreground">
-            {item.description}
-          </p>
-        )}
-      </div>
-    </a>
-  );
-};
-
-export { Navbar };
+}

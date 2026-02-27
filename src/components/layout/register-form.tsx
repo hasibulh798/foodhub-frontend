@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -16,18 +17,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
-import { useRouter } from "next/navigation";
-
 import { toast } from "sonner";
 import * as z from "zod";
 
 const formSchema = z.object({
+  name: z.string().min(1, "The field is required!"),
   email: z.email(),
   password: z.string().min(8, "Password must be at least 8 characters!"),
 });
 
-export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
-  const GoogleLoginHandler = async () => {
+export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const GoohleLoginHandler = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
       callbackURL: "http://localhost:3000",
@@ -35,9 +35,9 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
     console.log(data);
   };
 
-  const router = useRouter();
   const form = useForm({
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
@@ -46,18 +46,16 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
     },
     onSubmit: async ({ value }) => {
       // Do something with form data
-      const toastId = toast.loading("User Logging in...");
+      const toastId = toast.loading("User creating...");
       try {
-        const { data, error } = await authClient.signIn.email(value);
-        console.log(data);
-        router.push("/");
+        const { data, error } = await authClient.signUp.email(value);
         if (error) {
           toast.error(error.message, { id: toastId });
           return;
         }
-        toast.success("User login successfully", { id: toastId });
+        toast.success("User registered successfully", { id: toastId });
       } catch (error) {
-        toast.error("Something went wrong.Please try again!", { id: toastId });
+        toast.error("SOmething went wrong.Please try again!", { id: toastId });
       }
     },
   });
@@ -65,7 +63,10 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Log In</CardTitle>
+        <CardTitle>Register account</CardTitle>
+        <CardDescription>
+          Enter your information below to register your account
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -76,6 +77,27 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
           }}
         >
           <FieldGroup>
+            <form.Field name="name">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="text"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            </form.Field>
             <form.Field name="email">
               {(field) => {
                 const isInvalid =
@@ -123,15 +145,15 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       </CardContent>
       <CardFooter className="flex flex-col gap-5 justify-end">
         <Button className="w-full" form="reg-form" type="submit">
-          LogIn
+          Register
         </Button>
         <Button
           className="w-full"
-          onClick={() => GoogleLoginHandler()}
+          onClick={() => GoohleLoginHandler()}
           variant="outline"
           type="button"
         >
-          Logging with Google
+          Continue with Google
         </Button>
       </CardFooter>
     </Card>

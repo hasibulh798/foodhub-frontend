@@ -11,6 +11,20 @@ import "./globals.css";
 //   variable: "--font-geist-mono",
 //   subsets: ["latin"],
 // });
+import { Playfair_Display, Poppins } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-heading",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: "Food Hub App",
@@ -24,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={`${playfair.variable} ${poppins.variable} font-sans`}><TooltipProvider>{children}</TooltipProvider></body>
     </html>
   );
 }

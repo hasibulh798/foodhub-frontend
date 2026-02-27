@@ -1,22 +1,49 @@
+"use client"
+import { GemIcon, TimerIcon, VanIcon } from "lucide-react";
+import { motion } from "framer-motion";
 import Link from "next/link";
-// import { Button } from "../ui/button";
+
 export default function Hero() {
   return (
     <section
-      className=" h-[100vh] bg-cover bg-center flex items-center justify-center text-white"
+      className=" h-screen bg-cover bg-center flex   text-white"
       style={{ backgroundImage: "url('/hero.webp')" }}
     >
-      <div className="bg-black/50 p-8 rounded-xl text-center">
-        <h1 className="text-4xl font-bold mb-4">
-          Delicious Food Delivered To You
-        </h1>
-        <p className="mb-6">Order from your favorite restaurants</p>
-        <Link
-          href={"http://localhost:3000/meals"}
-          className="bg-red-500 px-6 py-3 rounded-lg"
-        >
-          Order Now
-        </Link>
+      <div className="w-[60%] flex-col ml-32 items-center justify-center ">
+        <motion.h1
+         initial={{ opacity: 0, x: 100 }}   // 100px right side থেকে শুরু
+          animate={{ opacity: 1, x: 0 }}     // original position এ আসবে
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-6xl leading-20 font-bold py-4 mt-42 ">
+          Excellence Taste in Every Bite & Adorn your Food Senses
+        </motion.h1>
+
+        <div className="relative max-w-[60%] mt-18">
+          <input
+            type="text"
+            placeholder="Find your favourite food..."
+            className="w-full px-5 py-5 pr-32 rounded-full border bg-amber-50 border-gray-300 outline-none text-black"
+          />
+
+          <Link href={"http://localhost:3000/meals"}>
+          <button className="absolute right-1 top-1 bottom-1 px-8 bg-red-500 text-white font-semibold rounded-full hover:bg-amber-500 transition-discrete">
+            Find Now
+          </button></Link>
+        </div>
+
+        <div className="w-[60%] flex justify-between mt-20">
+          <h1 className="text-2xl font-bold hover:text-red-700 transition ">
+            {" "}
+            <VanIcon size={52} /> Fast delivery
+          </h1>
+          <h1 className="text-2xl font-bold hover:text-red-700 transition ">
+            {" "}
+            <TimerIcon size={52} /> Pickup
+          </h1>
+          <h1 className="text-2xl font-bold hover:text-red-700 transition ">
+            <GemIcon size={52}  /> Divine In
+          </h1>
+        </div>
       </div>
     </section>
   );

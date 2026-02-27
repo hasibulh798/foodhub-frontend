@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface ProviderProps {
@@ -15,14 +16,15 @@ export default function RestaurantCard({
   logoUrl,
   isVerified,
 }: ProviderProps) {
+
   return (
-    <Link href={`/restaurant/${id}`}>
+    <Link href={`/restaurants/${id}`}>
       <div className="bg-white rounded-2xl shadow-sm hover:shadow-lg hover:scale-[1.02] transition duration-300 cursor-pointer overflow-hidden">
         
         {/* Logo / Cover */}
         <div className="h-44 w-full bg-gray-100 flex items-center  justify-center border-2 overflow-hidden">
           {logoUrl ? (
-            <img
+            <Image
               src={logoUrl}
               alt={businessName}
               className="w-full h-full object-cover"
