@@ -15,19 +15,35 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 
-// This is sample data.
 const data = {
-  navMain: [
+  adminRoute: [
     {
       title: "Admin Analytics",
       url: "#",
       items: [
         {
-          title: "Installation",
+          title: "User",
           url: "#",
         },
         {
-          title: "Project Structure",
+          title: "Orders",
+          url: "#",
+        },
+        {
+          title: "Providers",
+          url: "#",
+        },
+      ],
+    },
+
+  ],
+  providerRoute: [
+    {
+      title: "Provider Analytics",
+      url: "#",
+      items: [
+        {
+          title: "Orders",
           url: "#",
         },
       ],
@@ -37,6 +53,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const {role} = props
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -44,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
+        {role === "ADMIN" && data.adminRoute.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>

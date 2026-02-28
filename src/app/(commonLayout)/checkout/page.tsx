@@ -15,11 +15,12 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [loading, setLoading] = useState(false);
 
-  const totalPrice = cartItems.reduce(
+  const subtotalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
-
+  const deliveryFee = 120
+const totalPrice = subtotalPrice + deliveryFee
   const handleOrder = async () => {
     if (!phone || !deliveryAddress) {
       alert("Phone and address required");
@@ -41,13 +42,9 @@ export default function CheckoutPage() {
 
       const res = await orderService.createOrder(orderPayload as OrderTypes);
 
-      // if (!res.success) {
-      //   throw new Error("Order failed");
-      // }
-
       clearCart();
       alert("Order placed successfully 🎉");
-      router.push("/");
+      router.push("/order-success");
 
     } catch (err) {
       console.error(err);
@@ -77,6 +74,14 @@ export default function CheckoutPage() {
           </div>
         ))}
 
+        <div className="flex justify-between font-medium mt-4">
+          <span>Subtotal</span>
+          <span>{subtotalPrice} BDT</span>
+        </div>
+        <div className="flex justify-between mt-4">
+          <span>DeliveryFee</span>
+          <span>{deliveryFee} BDT</span>
+        </div>
         <div className="flex justify-between font-bold mt-4">
           <span>Total</span>
           <span>{totalPrice} BDT</span>

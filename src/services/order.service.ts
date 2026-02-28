@@ -9,14 +9,14 @@ export type OrderTypes = {
 };
 export const orderService = {
   createOrder: async (orderPayload: OrderTypes) => {
-    const res = fetcher(`${BASE_URL}/orders`, {
+    const res = await fetcher(`${BASE_URL}/orders`, {
       cache: "no-store",
       method: "POST",
       body: JSON.stringify(orderPayload),
     });
-    console.log(res.data);
-    if(!res.success){
-      throw new Error("Failed to creare Order")
+
+    if (!res.success) {
+      throw new Error("Failed to creare Order");
     }
   },
 };

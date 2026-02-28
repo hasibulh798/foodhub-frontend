@@ -16,7 +16,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { providerServices } from "@/services/provider.service";
 import { useForm } from "@tanstack/react-form";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -38,7 +40,7 @@ export function RestaurantForm2({ ...props }: React.ComponentProps<typeof Card>)
     });
     console.log(data);
   };
-
+const router = useRouter()
   const form = useForm({
     defaultValues: {
       name: "",
@@ -56,11 +58,11 @@ export function RestaurantForm2({ ...props }: React.ComponentProps<typeof Card>)
       // Do something with form data
       const toastId = toast.loading("User creating...");
       try {
-        const { data, error } = await authClient.signUp.email(value);
-        if (error) {
-          toast.error(error.message, { id: toastId });
-          return;
+        const res = await providerServices.createProvider(value)
+        if(!res.data){
+          toast.error("User registered Failed!", { id: toastId })
         }
+        router.push("/")
         toast.success("User registered successfully", { id: toastId });
       } catch (error) {
         toast.error("SOmething went wrong.Please try again!", { id: toastId });
