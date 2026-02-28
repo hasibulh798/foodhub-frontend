@@ -1,9 +1,8 @@
 "use client";
 
-import CustomerForm from "@/components/modules/signup/CustomerForm";
-import RestaurantForm from "@/components/modules/signup/RestaurantForm";
+import { CustomerForm } from "@/components/modules/signup/CustomerForm";
+import { RestaurantForm2 } from "@/components/modules/signup/RestaurantForm2";
 import { useState } from "react";
-
 
 export default function SignupPage() {
   const [role, setRole] = useState<"CUSTOMER" | "PROVIDER" | null>(null);
@@ -12,9 +11,7 @@ export default function SignupPage() {
     <div className="max-w-md mx-auto py-12 px-6">
       {!role && (
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-center mb-6">
-            Register As
-          </h2>
+          <h2 className="text-2xl font-bold text-center mb-6">Register As</h2>
 
           <button
             onClick={() => setRole("CUSTOMER")}
@@ -33,7 +30,7 @@ export default function SignupPage() {
       )}
 
       {role === "CUSTOMER" && <CustomerForm />}
-      {role === "PROVIDER" && <RestaurantForm />}
+      {role === "PROVIDER" && <RestaurantForm2 />}
     </div>
   );
 }

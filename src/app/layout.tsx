@@ -11,8 +11,8 @@ import "./globals.css";
 //   variable: "--font-geist-mono",
 //   subsets: ["latin"],
 // });
+import { CartProvider } from "@/lib/Cart-context";
 import { Playfair_Display, Poppins } from "next/font/google";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -38,7 +38,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${playfair.variable} ${poppins.variable} font-sans`}><TooltipProvider>{children}</TooltipProvider></body>
+      <body>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }

@@ -27,6 +27,8 @@ export default function RestaurantCard({
             <Image
               src={logoUrl}
               alt={businessName}
+              width={400}
+              height={300}
               className="w-full h-full object-cover"
             />
           ) : (

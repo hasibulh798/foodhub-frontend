@@ -4,7 +4,9 @@ import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
+import { useCart } from "@/lib/Cart-context";
+
 
 interface User {
   name: string;
@@ -28,6 +30,8 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const { count } = useCart(); // cart count
+
   // Get session user
   useEffect(() => {
     const getUser = async () => {
@@ -47,9 +51,8 @@ export default function Navbar() {
   return (
     <nav className="h-16 bg-amber-300 shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        
         {/* LEFT SIDE */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 md:gap-8">
           {/* Logo */}
           <Link href="/">
             <Image
@@ -77,6 +80,16 @@ export default function Navbar() {
 
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-4">
+          {/* Cart Icon */}
+          <Link href="/cart" className="relative hidden md:flex">
+            <ShoppingCart size={24} />
+            {count > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                {count}
+              </span>
+            )}
+          </Link>
+
           {/* Desktop Auth */}
           {!user ? (
             <div className="hidden md:flex items-center gap-3">
@@ -122,6 +135,12 @@ export default function Navbar() {
                   >
                     Profile
                   </Link>
+                  <Link
+                    href="/dashboard"
+                    className="block px-4 py-2 hover:bg-gray-100"
+                  >
+                    Dashboard
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
@@ -158,6 +177,20 @@ export default function Navbar() {
           ))}
 
           <hr />
+
+          {/* Cart for Mobile */}
+          <Link
+            href="/cart"
+            className="block relative"
+            onClick={() => setMobileOpen(false)}
+          >
+            Cart
+            {count > 0 && (
+              <span className="ml-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                {count}
+              </span>
+            )}
+          </Link>
 
           {!user ? (
             <>

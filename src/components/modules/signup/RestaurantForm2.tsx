@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -22,13 +21,16 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 const formSchema = z.object({
-  name: z.string().min(1, "The field is required!"),
+  name: z.string().min(3, "The field is required!"),
   email: z.email(),
   password: z.string().min(8, "Password must be at least 8 characters!"),
   phone: z.string().min(11, "Please give correct number"),
+  businessName: z.string().min(3, "The field is required!"),
+  address: z.string().min(3, "The field is required!"),
+  logoUrl: z.string(),
 });
 
-export function CustomerForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function RestaurantForm2({ ...props }: React.ComponentProps<typeof Card>) {
   const GoogleLoginHandler = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
@@ -43,6 +45,9 @@ export function CustomerForm({ ...props }: React.ComponentProps<typeof Card>) {
       email: "",
       password: "",
       phone: "",
+      businessName: "",
+      address: "",
+      logoUrl: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -66,10 +71,7 @@ export function CustomerForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Register account</CardTitle>
-        <CardDescription>
-          Enter your information below to register your account
-        </CardDescription>
+        <CardTitle>Sign Up for Restaurant</CardTitle>
       </CardHeader>
       <CardContent>
         <form
@@ -168,12 +170,80 @@ export function CustomerForm({ ...props }: React.ComponentProps<typeof Card>) {
                 );
               }}
             />
+            <form.Field
+              name="businessName"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      Restaurant Name
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="text"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="address"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Address</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="text"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="logoUrl"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Logo URL</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="text"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
           </FieldGroup>
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-5 justify-end">
         <Button className="w-full" form="reg-form" type="submit">
-          Register as customer
+          Register Restaurant
         </Button>
         <Button
           className="w-full"

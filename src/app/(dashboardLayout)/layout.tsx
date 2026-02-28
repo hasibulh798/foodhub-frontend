@@ -12,22 +12,22 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
+import { userRole } from "@/constants/allType";
 import { userService } from "@/services/auth.service";
 
 export default async function DashboardLayout({
   admin,
   provider,
-  user,
+  customer,
 }: Readonly<{
   admin: React.ReactNode;
   provider: React.ReactNode;
-  user: React.ReactNode;
+  customer: React.ReactNode;
 }>) {
-  const exit = await userService.getSession()
-  const { data } = await authClient.getSession();
-  console.log(exit)
-  console.log(data);
+  const {data} = await userService.getSession();
+  console.log(data)
+  const user = data?.user
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -49,9 +49,9 @@ export default async function DashboardLayout({
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="bg-muted/50 min-h-screen flex-1 rounded-xl md:min-h-min">
-            {admin}
-            {provider}
-            {user}
+            {user?.role === userRole.admin && admin}
+            {user?.role === userRole.provider &&provider}
+            {user?.role === userRole.customer && customer}
           </div>
         </div>
       </SidebarInset>

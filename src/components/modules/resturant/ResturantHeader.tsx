@@ -4,8 +4,8 @@ interface RestaurantHeaderProps {
     businessName: string;
     logoUrl?: string | null;
     address: string;
-    rating?: number; 
-    deliveryFee?: number; 
+    rating?: number;
+    deliveryFee?: number;
     estimatedTime?: string;
   };
   totalMeals?: number;
@@ -16,7 +16,6 @@ export default function RestaurantHeader({
   totalMeals,
   totalOrder,
 }: RestaurantHeaderProps) {
-  console.log("RestaurantHeader: provider: ",provider.businessName)
   return (
     <div className="mb-8">
       {/* Banner / Logo */}

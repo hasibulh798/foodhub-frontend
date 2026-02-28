@@ -1,7 +1,11 @@
 // ═══════════════════════════════════════════
 //  ENUMS — Schema থেকে exact match
 // ═══════════════════════════════════════════
-
+export const userRole = {
+  admin: "ADMIN",
+  provider: "PROVIDER",
+  customer: "CUSTOMER"
+}
 export type UserRole = "CUSTOMER" | "PROVIDER" | "ADMIN";
 export type UserStatus = "ACTIVE" | "INACTIVE" | "SUSPENDED";
 export type OrderStatus =

@@ -16,14 +16,14 @@ interface MealCardProps {
 
 export default function MealCard({ meal }: MealCardProps) {
     if (!meal) return null;
-console.log("meal:",meal)
+
   return (
     <div className="w-65 flex-col justify-center items-center bg-white rounded-xl shadow p-4">
       {meal.imageUrl && (
         <Image
           src={meal.imageUrl}
           alt={meal.name}
-          width={400}
+          width={300}
           height={300}
           className="h-40 w-full object-cover rounded-md"
         />
@@ -31,7 +31,7 @@ console.log("meal:",meal)
 
       <h3 className="text-lg font-semibold mt-3">{meal.name}</h3>
 
-      <p className="text-sm text-gray-500">{meal.description}</p>
+      <p className="text-sm text-gray-500 h-4 overflow-hidden">{meal.description}</p>
 
       <div className="flex justify-between items-center mt-3">
         <span className="font-bold text-red-500">
