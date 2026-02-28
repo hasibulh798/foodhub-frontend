@@ -2,8 +2,10 @@
 import { GemIcon, TimerIcon, VanIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Hero() {
+  const [search, setSearch] = useState("")
   return (
     <section
       className=" h-screen bg-cover bg-center flex   text-white"
@@ -11,8 +13,8 @@ export default function Hero() {
     >
       <div className="w-[60%] flex-col ml-32 items-center justify-center ">
         <motion.h1
-         initial={{ opacity: 0, x: 100 }}   // 100px right side থেকে শুরু
-          animate={{ opacity: 1, x: 0 }}     // original position এ আসবে
+         initial={{ opacity: 0, x: 100 }}   
+          animate={{ opacity: 1, x: 0 }}     
           transition={{ duration: 0.8, ease: "easeOut" }}
         className="text-6xl leading-20 font-bold py-4 mt-42 ">
           Excellence Taste in Every Bite & Adorn your Food Senses
@@ -26,7 +28,9 @@ export default function Hero() {
           />
 
           <Link href={"http://localhost:3000/meals"}>
-          <button className="absolute right-1 top-1 bottom-1 px-8 bg-red-500 text-white font-semibold rounded-full hover:bg-amber-500 transition-discrete">
+          <button
+          onChange={(e)=> setSearch(e.target.value)}
+           className="absolute right-1 top-1 bottom-1 px-8 bg-red-500 text-white font-semibold rounded-full hover:bg-amber-500 transition-discrete">
             Find Now
           </button></Link>
         </div>

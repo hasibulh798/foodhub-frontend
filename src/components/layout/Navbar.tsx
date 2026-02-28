@@ -70,7 +70,7 @@ export default function Navbar() {
               <Link
                 key={menu.url}
                 href={menu.url}
-                className="hover:text-red-500 transition"
+                className="hover:text-red-500 transition active:bg-red-600"
               >
                 {menu.name}
               </Link>
@@ -95,7 +95,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-3">
               <Link
                 href="/login"
-                className="bg-red-500 text-white px-4 py-2 rounded-full text-sm hover:bg-red-600 transition"
+                className="bg-red-500 text-white px-4 py-2 rounded-full text-sm  hover:bg-red-600 transition"
               >
                 Login
               </Link>

@@ -39,6 +39,7 @@ useEffect(() => {
   const fetchCategories = async () => {
     const data = await categoryServices.getAllCategories();
     setCategories(data);
+    console.log("Meal page cat: ",data)
   };
 
   fetchCategories();
@@ -47,21 +48,25 @@ useEffect(() => {
 // Fetch meals
 useEffect(() => {
   const fetchMeals = async () => {
-    const { data, totalPages } = await mealServices.getAllMeals({
+const params ={
       search,
       isAvailable,
       dietaryType,
       categoryId,
       priceRange,
       page,
-    });
-
+    }
+    const filteredParams = Object.fromEntries(
+  Object.entries(params).filter(([_, v]) => v != null && v !== "")
+);
+    const data = await mealServices.getAllMeals(filteredParams);
+console.log("MealPage meal: ",data)
     setMeals(data);
     setTotalPages(totalPages);
   };
 
   fetchMeals();
-}, [search, isAvailable, dietaryType, categoryId, priceRange, page]);
+}, [search, isAvailable, dietaryType, categoryId, priceRange, page,totalPages]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
@@ -86,6 +91,7 @@ useEffect(() => {
             <input
               type="checkbox"
               checked={isAvailable}
+              
               onChange={(e) => setIsAvailable(e.target.checked)}
             />
             Available Only

@@ -12,19 +12,6 @@ import "./globals.css";
 //   subsets: ["latin"],
 // });
 import { CartProvider } from "@/lib/Cart-context";
-import { Playfair_Display, Poppins } from "next/font/google";
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-heading",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-body",
-});
 
 export const metadata: Metadata = {
   title: "Food Hub App",

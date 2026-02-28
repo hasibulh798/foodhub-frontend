@@ -28,7 +28,7 @@ export default function RestaurantHeader({
           alt={provider.businessName ?? "Image"}
           width={400}
           height={300}
-          className="w-full h-full object-cover"
+          className="w-full h-full border-2 object-cover"
         />
       </div>
 

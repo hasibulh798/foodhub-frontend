@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useCart } from "@/lib/Cart-context";
 import { mealServices } from "@/services/meal.service";
@@ -19,12 +19,12 @@ interface Meal {
 export default function MealDetailsPage({
   params,
 }: {
-  params: {  mealId: string };
+  params: { mealId: string };
 }) {
   const { mealId } = React.use(params);
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
-  const {addItem} = useCart
+  const { addItem } = useCart();
   useEffect(() => {
     async function fetchMeal() {
       try {
@@ -69,7 +69,14 @@ export default function MealDetailsPage({
           )}
           <button
             className="mt-auto px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition"
-            onClick={() => addItem(meal.id)}
+            onClick={() =>
+              addItem({
+                mealId,
+                name: meal.name,
+                price: Number(meal.price),
+                imageUrl: meal.imageUrl,
+              })
+            }
           >
             Add to Cart
           </button>
@@ -84,10 +91,7 @@ export default function MealDetailsPage({
         ) : (
           <div className="flex flex-col gap-4">
             {meal.reviews.map((review) => (
-              <div
-                key={review.id}
-                className="border rounded-xl p-4 bg-gray-50"
-              >
+              <div key={review.id} className="border rounded-xl p-4 bg-gray-50">
                 <p className="font-semibold">{review.user}</p>
                 <p className="text-yellow-500">Rating: {review.rating}/5</p>
                 <p className="text-gray-700">{review.comment}</p>

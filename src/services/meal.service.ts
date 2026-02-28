@@ -6,13 +6,15 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export const mealServices = {
   getAllMeals: async (params: Record<string, any>) => {
     const queryString = new URLSearchParams(params).toString();
-    const res = await fetcher(`${BASE_URL}/meals/${queryString}`, {
+    console.log("---: ", queryString)
+    const res = await fetcher(`${BASE_URL}/meals?${queryString}`, {
       cache: "no-store",
     });
 
     if (!res.success) {
       throw new Error("Failed to fecth meals");
     }
+    console.log("Meal services : ",res)
     return res.data;
   },
   getSingleMeal: async (mealId: string) => {

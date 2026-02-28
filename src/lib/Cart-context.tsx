@@ -13,6 +13,7 @@ interface CartContextType {
   items: CartItem[];
   addItem: (meal: Omit<CartItem, "quantity">) => void;
   removeItem: (mealId: string) => void;
+  clearCart: () => void;
   increaseQty: (mealId: string) => void;
   decreaseQty: (mealId: string) => void;
   count: number;
@@ -29,9 +30,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((i) => i.mealId === meal.mealId);
       if (existing) {
         return prev.map((i) =>
-          i.mealId === meal.mealId
-            ? { ...i, quantity: i.quantity + 1 }
-            : i
+          i.mealId === meal.mealId ? { ...i, quantity: i.quantity + 1 } : i,
         );
       }
       return [...prev, { ...meal, quantity: 1 }];
@@ -47,7 +46,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         i.mealId === mealId ? { ...i, quantity: i.quantity + 1 } : i,
       ),
     );
-
+  const clearCart = () => {
+    setItems([]);
+  };
   const decreaseQty = (mealId: string) =>
     setItems((prev) =>
       prev
@@ -57,9 +58,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
         .filter((i) => i.quantity > 0),
     );
   const count = items.reduce((acc, i) => acc + i.quantity, 0);
+  const totalPrice = items.reduce((acc, i) => acc + i.quantity * i.price, 0);
 
   return (
-    <CartContext.Provider value={{items, addItem, removeItem, increaseQty, decreaseQty, count, totalPrice }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        clearCart,
+        increaseQty,
+        decreaseQty,
+        count,
+        totalPrice,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
