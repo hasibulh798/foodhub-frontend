@@ -23,15 +23,15 @@ const data = {
       items: [
         {
           title: "User",
-          url: "#",
+          url: "/dashboard/user",
         },
         {
           title: "Orders",
-          url: "#",
+          url: "/dashboard/orders",
         },
         {
           title: "Providers",
-          url: "#",
+          url: "/dashboard/providers",
         },
       ],
     },
@@ -44,7 +44,11 @@ const data = {
       items: [
         {
           title: "Orders",
-          url: "#",
+          url: "/dashboard/orders",
+        },
+        {
+          title: "Menu",
+          url: "/dashboard/menu",
         },
       ],
     },

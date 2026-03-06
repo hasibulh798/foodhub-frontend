@@ -16,8 +16,8 @@ export const providerServices = {
         throw new Error("Failed to fetch providers");
       }
       return { data: res.data, error: null };
-    } catch (error) {
-      return { data: null, error: "Failed to create resturant" };
+    } catch (error:any) {
+      return { data: null, error: error.message ||"Failed to create resturant" };
     }
   },
   getProviders: async () => {
