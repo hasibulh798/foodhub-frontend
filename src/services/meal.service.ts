@@ -9,7 +9,9 @@ export const mealServices = {
     const queryString = new URLSearchParams(params).toString();
     console.log("---: ", queryString);
     const res = await fetcher(`${BASE_URL}/meals?${queryString}`, {
-      cache: "no-store",
+      next:{
+        revalidate:60
+      }
     });
 
     if (!res.success) {

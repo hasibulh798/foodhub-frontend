@@ -12,7 +12,6 @@ import "./globals.css";
 //   subsets: ["latin"],
 // });
 import { CartProvider } from "@/lib/Cart-context";
-import { userService } from "@/services/auth.service";
 
 export const metadata: Metadata = {
   title: "Food Hub App",
@@ -24,8 +23,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await userService.getSession();
-  
   return (
     <html lang="en">
       <body>
