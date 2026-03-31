@@ -12,6 +12,7 @@ export const categoryServices = {
     if (!res.success) {
       throw new Error("Failed to fecth categories");
     }
+    console.log(res.data)
     return res.data;
   },
   getCategoriesByProvider:async(providerId:string)=>{

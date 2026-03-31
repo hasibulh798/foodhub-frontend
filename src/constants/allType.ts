@@ -58,6 +58,7 @@ export interface ProviderProfile {
 export interface Category {
   id: string;
   name: string;
+  iconUrl?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
