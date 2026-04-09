@@ -13,6 +13,7 @@ import "./globals.css";
 // });
 import { CartProvider } from "@/lib/Cart-context";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Food Hub App",
@@ -28,7 +29,10 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
