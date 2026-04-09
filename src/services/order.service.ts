@@ -19,4 +19,41 @@ export const orderService = {
       throw new Error("Failed to creare Order");
     }
   },
+
+  getMyOrders: async () => {
+    const res = await fetcher(`${BASE_URL}/orders`, {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to fetch orders");
+    }
+    return res.data;
+  },
+  
+
+  updateOrderStatus: async (orderId: string, status: string) => {
+    const res = await fetcher(`${BASE_URL}/provider/orders/${orderId}/status`, {
+      cache: "no-store",
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+    if (!res.success) {
+      throw new Error("Failed to update order status");
+    }
+
+    return res.data;
+  },  
+
+  getProviderOrders: async () => {
+    const res = await fetcher(`${BASE_URL}/orders`, {
+      cache: "no-store",
+    });
+
+    if (!res.success) {
+      throw new Error("Failed to fetch orders");
+    }
+
+    return res.data;
+  },    
+  
 };

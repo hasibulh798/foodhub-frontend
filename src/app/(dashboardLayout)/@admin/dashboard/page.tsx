@@ -24,32 +24,30 @@ type User = {
   }; // for provider
 };
 
-type Stats ={
-  totalOrders: number,
-      totalUsers: number,
-      totalProviders: number,
-      verifiedProviders: number,
-      totalRevenue: number 
-}
+type Stats = {
+  totalOrders: number;
+  totalUsers: number;
+  totalProviders: number;
+  verifiedProviders: number;
+  totalRevenue: number;
+};
 export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
-  const [stats, setStats] = useState<Stats>()
+  const [stats, setStats] = useState<Stats>();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-
   //Fetch Stats
-    useEffect(() => {
+  useEffect(() => {
     async function fetchStats() {
       const res = await adminService.getStats();
-      console.log("Statistic: ", res.data)
-    setStats(res.data) 
+      console.log("Statistic: ", res.data);
+      setStats(res.data);
     }
     fetchStats();
   }, []);
 
-
-  const totalRevenue = stats?.totalRevenue ?? 0
-  const totalOrders = stats?.totalOrders ?? 0
+  const totalRevenue = stats?.totalRevenue ?? 0;
+  const totalOrders = stats?.totalOrders ?? 0;
 
   useEffect(() => {
     async function fetchUsers() {
@@ -86,11 +84,20 @@ export default function AdminDashboard() {
   // DELETE USER
   // =========================
   const handleDeleteUser = async (id: string) => {
+    const confirmDelete = confirm("Are you sure you want to delete this user?");
+    if (!confirmDelete) return;
+
     try {
-      await adminService.deleteUser(id);
+      const res = await adminService.deleteUser(id);
+
+      if (!res?.success) {
+        throw new Error("Delete failed");
+      }
+
       setUsers((prev) => prev.filter((u) => u.id !== id));
-    } catch {
-      alert("Delete failed");
+    } catch (err) {
+      console.error("DELETE ERROR:", err);
+      alert(err instanceof Error ? err.message : "Delete failed");
     }
   };
 
@@ -156,7 +163,9 @@ export default function AdminDashboard() {
         <StatCard
           icon={<UserMinus />}
           label="Non-Verified Providers"
-          value={providers.filter((p) => !p.providerProfiles?.isVerified).length}
+          value={
+            providers.filter((p) => !p.providerProfiles?.isVerified).length
+          }
         />
         <StatCard
           icon={<DollarSign />}

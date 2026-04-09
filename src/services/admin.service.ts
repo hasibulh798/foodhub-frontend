@@ -8,72 +8,61 @@ export const adminService = {
       cache: "no-store",
     });
     if (!res.success) {
-      throw new Error("Failed to creare Order");
+      throw new Error(res.message || "Failed to fetch users");
     }
-    console.log(res);
-    return { user: res.data, totalUsers: res.data.length };
+    return { users: res.data, totalUsers: res.data.length };
   },
-  updateUserStatus: async (userId: string, updatedStatus: UserStatus) => {
+
+  updateUserStatus: async (userId: string, status: UserStatus) => {
     const res = await fetcher(`${BASE_URL}/admin/users/${userId}`, {
       method: "PATCH",
-      cache: "no-store",
-      body: JSON.stringify({ status: updatedStatus }),
+      body: JSON.stringify({ status }),
     });
     if (!res.success) {
-      throw new Error("Failed to creare Order");
+      throw new Error(res.message || "Failed to update user status");
     }
-    console.log(res);
     return res.data;
   },
+
   deleteUser: async (userId: string) => {
     const res = await fetcher(`${BASE_URL}/admin/users/${userId}`, {
       method: "DELETE",
-      cache: "no-store",
     });
     if (!res.success) {
-      throw new Error("Failed to creare Order");
+      throw new Error(res.message || "Failed to delete user");
     }
-    console.log(res);
-    return res;
-  },
-  verifyProvider: async (providerId: string, verifyData: boolean) => {
-    console.log("PId: ", providerId);
-    const res = await fetcher(
-      `${BASE_URL}/admin/verify-provider/${providerId}`,
-      {
-        method: "PATCH",
-        cache: "no-store",
-        body: JSON.stringify({ isVerified: verifyData }),
-      },
-    );
-    if (!res.success) {
-      throw new Error("Failed to creare Order");
-    }
-    console.log(res);
     return res.data;
   },
+
+  verifyProvider: async (providerId: string, isVerified: boolean) => {
+    const res = await fetcher(`${BASE_URL}/admin/verify-provider/${providerId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ isVerified }),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to verify provider");
+    }
+    return res.data;
+  },
+
   deleteProvider: async (providerId: string) => {
     const res = await fetcher(`${BASE_URL}/admin/providers/${providerId}`, {
       method: "DELETE",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to delete provider profile");
+    }
+    return res.data;
+  },
+
+  getStats: async () => {
+    const res = await fetcher(`${BASE_URL}/admin/dashboard-stats`, {
       cache: "no-store",
     });
     if (!res.success) {
-      throw new Error("Failed to delete provider");
+      throw new Error(res.message || "Failed to fetch dashboard stats");
     }
+    return res.data;
+  },
 
-    return res;
-  },
-  getStats: async () => {
-    try {
-      const res = await fetcher(`${BASE_URL}/admin/dashboard-stats`, {
-        cache: "no-store",
-      });
-      if (!res.success) {
-        return { data: null, error: "Something went wrong" };
-      }
-      return { data: res.data, error: null };
-    } catch (error) {
-      return { data: null, error: "Failed to fetche" };
-    }
-  },
 };

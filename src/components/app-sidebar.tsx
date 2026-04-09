@@ -14,6 +14,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { UserRole, userRole } from "@/constants/allType";
 
 const data = {
   adminRoute: [
@@ -42,22 +43,46 @@ const data = {
       title: "Provider Analytics",
       url: "#",
       items: [
+        
+        {
+          title: "Menu",
+          url: "/dashboard/menu",
+        },
         {
           title: "Orders",
           url: "/dashboard/orders",
         },
         {
-          title: "Menu",
-          url: "/dashboard/menu",
+          title: "Profile",
+          url: "/dashboard/profile",
         },
       ],
     },
-
+  ],
+  customerRoute: [
+    {
+      title: "Navigation",
+      url: "#",
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard",
+        },
+        {
+          title: "My Orders",
+          url: "/dashboard/orders",
+        },
+        {
+          title: "Explore Menu",
+          url: "/meals",
+        },
+      ],
+    },
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const {role} = props
+
+export function AppSidebar({ role, ...props }: React.ComponentProps<typeof Sidebar> & { role?: string }) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -65,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {role === "ADMIN" && data.adminRoute.map((item) => (
+        {role === userRole.admin && data.adminRoute.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -81,6 +106,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+        {role === userRole.provider && data.providerRoute.map((item) => (
+          <SidebarGroup key={item.title}>
+            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {item.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild >
+                      <Link href={item.url}>{item.title}</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
+        {role === userRole.customer && data.customerRoute.map((item) => (
+          <SidebarGroup key={item.title}>
+            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {item.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild >
+                      <Link href={item.url}>{item.title}</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
+
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

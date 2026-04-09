@@ -1,7 +1,8 @@
 "use client";
 
 import type { Order, OrderStatus } from "@/constants/allType";
-import { orderAPI } from "@/lib/api";
+import { orderService } from "@/services/order.service";
+
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -64,9 +65,10 @@ export default function ProviderOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await orderAPI.getProviderOrders();
-      setOrders(res.data);
+      const ordersData = await orderService.getProviderOrders();
+      setOrders(ordersData);
     } catch {
+
       toast.error("Orders load failed");
     } finally {
       setLoading(false);
@@ -76,8 +78,9 @@ export default function ProviderOrdersPage() {
   const updateStatus = async (orderId: string, status: OrderStatus) => {
     setUpdatingId(orderId);
     try {
-      await orderAPI.updateStatus(orderId, status);
+      await orderService.updateOrderStatus(orderId, status);
       setOrders((prev) =>
+
         prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
       );
       toast.success(`→ ${STATUS_META[status].label}`);

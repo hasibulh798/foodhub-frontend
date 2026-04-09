@@ -1,8 +1,10 @@
 "use client";
 
+import type { Category, CreateMealInput, DietaryType, Meal } from "@/constants/allType";
+import { categoryServices } from "@/services/category.service";
+import { providerServices } from "@/services/provider.service";
+
 import { useEffect, useState } from "react";
-import { mealAPI, categoryAPI } from "@/lib/api";
-import type { Meal, Category, DietaryType, CreateMealInput } from "@/constants/allType";
 import toast from "react-hot-toast";
 
 const DIETARY_META: Record<DietaryType, { label: string; color: string }> = {
@@ -31,21 +33,23 @@ export default function ProviderMenuPage() {
     setLoading(true);
     try {
       const [mealsRes, catsRes] = await Promise.all([
-        mealAPI.getMyMeals(),
-        categoryAPI.getAll(),
+        providerServices.getMyMeals(),
+        categoryServices.getAllCategories()
+
       ]);
-      setMeals(mealsRes.data);
-      setCategories(catsRes.data);
+     
+      setMeals(mealsRes);
+      setCategories(catsRes);
+      
     } catch {
       toast.error("Load failed");
     } finally {
       setLoading(false);
     }
   };
-
   const toggleAvailability = async (meal: Meal) => {
     try {
-      await mealAPI.toggleAvailability(meal.id);
+      await providerServices.toggleMealAvailability(meal.id);
       setMeals((prev) =>
         prev.map((m) => (m.id === meal.id ? { ...m, isAvailable: !m.isAvailable } : m))
       );
@@ -54,10 +58,11 @@ export default function ProviderMenuPage() {
     }
   };
 
+
   const deleteMeal = async (mealId: string) => {
     if (!confirm("Delete this meal?")) return;
     try {
-      await mealAPI.delete(mealId);
+      await providerServices.deleteMeal(mealId);
       setMeals((prev) => prev.filter((m) => m.id !== mealId));
       toast.success("Meal deleted");
     } catch {
@@ -259,8 +264,10 @@ function MealModal({
     categoryId:  meal?.categoryId ?? "",
     cuisine:     meal?.cuisine ?? "",
     dietaryType: (meal?.dietaryType ?? "") as DietaryType | "",
+    imageUrl:    meal?.imageUrl ?? "",
     isAvailable: meal?.isAvailable ?? true,
   });
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -281,27 +288,31 @@ function MealModal({
         description: form.description,
         price:       Number(form.price),
         categoryId:  form.categoryId,
+        imageUrl:    form.imageUrl,
         isAvailable: form.isAvailable,
         cuisine:     form.cuisine || undefined,
         dietaryType: form.dietaryType || undefined,
       };
 
-      const res = isNew
-        ? await mealAPI.create(payload)
-        : await mealAPI.update(meal.id, payload);
+      const mealData = isNew
+        ? await providerServices.createMeal(payload)
+        : await providerServices.updateMeal(meal!.id, payload);
 
-      onSave(res.data, isNew);
+
+      onSave(mealData, isNew);
       toast.success(isNew ? "Meal added!" : "Meal updated!");
     } catch {
       toast.error("Save failed");
     } finally {
       setLoading(false);
     }
+
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <h2 className="font-semibold text-white">{isNew ? "Add New Meal" : "Edit Meal"}</h2>
@@ -351,11 +362,19 @@ function MealModal({
           </div>
 
           <div>
+            <label className="block text-xs text-gray-500 mb-1.5">Image URL</label>
+            <input name="imageUrl" value={form.imageUrl} onChange={handleChange}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 outline-none focus:border-orange-500/60 transition"
+              placeholder="https://example.com/image.jpg" />
+          </div>
+
+          <div>
             <label className="block text-xs text-gray-500 mb-1.5">Cuisine</label>
             <input name="cuisine" value={form.cuisine} onChange={handleChange}
               className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 outline-none focus:border-orange-500/60 transition"
               placeholder="e.g. Bengali, Chinese, Italian" />
           </div>
+
 
           <div>
             <label className="block text-xs text-gray-500 mb-1.5">Description</label>

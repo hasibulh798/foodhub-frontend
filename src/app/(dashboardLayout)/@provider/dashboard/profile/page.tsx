@@ -1,13 +1,17 @@
 "use client";
 
-import { providerAPI } from "@/lib/api";
+import { useSession } from "@/lib/auth-client";
+import { providerServices } from "@/services/provider.service";
 import { useEffect, useState } from "react";
+
 
 import type { ProviderProfile } from "@/constants/allType";
 
 import toast from "react-hot-toast";
 
 export default function ProviderProfilePage() {
+  const { data: session, isPending: sessionLoading } = useSession();
+  const user = session?.user;
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -23,13 +27,15 @@ export default function ProviderProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await providerAPI.getMyProfile();
-      setProfile(res.data);
-      setForm({
-        businessName: res.data.businessName,
-        address: res.data.address,
-        logoUrl: res.data.logoUrl ?? "",
-      });
+      const profileData = await providerServices.getMyProfile();
+      if (profileData) {
+        setProfile(profileData);
+        setForm({
+          businessName: profileData.businessName,
+          address: profileData.address,
+          logoUrl: profileData.logoUrl ?? "",
+        });
+      }
     } catch {
       toast.error("Profile load failed");
     } finally {
@@ -41,12 +47,12 @@ export default function ProviderProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await providerAPI.updateProfile({
+      const profileData = await providerServices.updateProfile({
         businessName: form.businessName,
         address: form.address,
         logoUrl: form.logoUrl || undefined,
       });
-      setProfile(res.data);
+      setProfile(profileData);
       toast.success("Profile updated!");
     } catch {
       toast.error("Update failed");
@@ -55,13 +61,26 @@ export default function ProviderProfilePage() {
     }
   };
 
-  if (loading) {
+  if (loading || sessionLoading) {
+
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <p className="text-gray-600 text-sm">Loading...</p>
+      <div className="flex-1 flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-500 text-xs">Loading profile...</p>
+        </div>
       </div>
     );
   }
+
+  if (!user) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-[400px]">
+        <p className="text-gray-500 text-sm">Please sign in to view your profile.</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex flex-col min-h-full">

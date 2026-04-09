@@ -1,3 +1,3 @@
 export default function ProviderDashboard() {
-  return <div>Dashboard psage</div>;
+  return <div>Provider Dashboard Page</div>;
 }

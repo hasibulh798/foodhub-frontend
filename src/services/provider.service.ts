@@ -40,4 +40,81 @@ export const providerServices = {
 
     return res.data;
   },
+
+  getMyMeals: async () => {
+    const res = await fetcher(`${BASE_URL}/provider/my-meals`, {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error("Failed to fetch providers");
+    }
+
+    return res.data;
+  },    
+
+  deleteMeal: async (mealId: string) => {
+    const res = await fetcher(`${BASE_URL}/provider/meals/${mealId}`, {
+      cache: "no-store",
+      method: "DELETE",
+    });
+    if (!res.success) {
+      throw new Error("Failed to delete meal");
+    }
+    return res.data;
+  },
+
+  createMeal: async (data: any) => {
+    const res = await fetcher(`${BASE_URL}/provider/meals`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to create meal");
+    }
+    return res.data;
+  },
+
+  updateMeal: async (mealId: string, data: any) => {
+    const res = await fetcher(`${BASE_URL}/provider/meals/${mealId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to update meal");
+    }
+    return res.data;
+  },
+
+  toggleMealAvailability: async (mealId: string) => {
+    const res = await fetcher(`${BASE_URL}/provider/meals/${mealId}/toggle`, {
+      method: "PATCH",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to toggle availability");
+    }
+    return res.data;
+  },
+
+  getMyProfile: async () => {
+    const res = await fetcher(`${BASE_URL}/providers/me`, {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to fetch profile");
+    }
+    return res.data;
+  },
+
+  updateProfile: async (data: any) => {
+    const res = await fetcher(`${BASE_URL}/providers/me`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to update profile");
+    }
+    return res.data;
+  },
 };
+
+

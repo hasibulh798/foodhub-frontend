@@ -30,15 +30,36 @@ export const mealServices = {
     }
     return res.data;
   },
-  craeteMeals: async (mealData : Meal) => {
-    try {
-      const res = await fetcher(`${BASE_URL}/meals`, {
-        method: "POST",
-        body: JSON.stringify(mealData),
-      });
-      return { data: res.data, error: null };
-    } catch (error: any) {
-      return { data: null, error: error.message || "Failed to create Meal" };
+  createMeal: async (mealData: any) => {
+    const res = await fetcher(`${BASE_URL}/meals`, {
+      method: "POST",
+      body: JSON.stringify(mealData),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to create meal");
     }
+    return res.data;
+  },
+
+  updateMeal: async (mealId: string, mealData: any) => {
+    const res = await fetcher(`${BASE_URL}/meals/${mealId}`, {
+      method: "PATCH",
+      body: JSON.stringify(mealData),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to update meal");
+    }
+    return res.data;
+  },
+
+  deleteMeal: async (mealId: string) => {
+    const res = await fetcher(`${BASE_URL}/meals/${mealId}`, {
+      method: "DELETE",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to delete meal");
+    }
+    return res.data;
   },
 };
+
