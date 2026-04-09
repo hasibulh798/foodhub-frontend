@@ -1,6 +1,6 @@
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
-import { CartProvider } from "@/lib/Cart-context";
+
 
 export default function CommonRootLayout({
   children,
@@ -9,11 +9,12 @@ export default function CommonRootLayout({
 }>) {
   return (
     <div>
-      <CartProvider>
       <Navbar />
-      {children}
+      <main className="min-h-screen">
+        {children}
+      </main>
       <Footer />
-      </CartProvider>
     </div>
   );
 }
+

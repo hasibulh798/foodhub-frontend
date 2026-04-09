@@ -12,6 +12,7 @@ import "./globals.css";
 //   subsets: ["latin"],
 // });
 import { CartProvider } from "@/lib/Cart-context";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Food Hub App",
@@ -26,8 +27,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <CartProvider>{children}</CartProvider>
+        <ThemeProvider>
+          <CartProvider>{children}</CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+

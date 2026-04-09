@@ -2,24 +2,34 @@
 
 import { categoryServices } from "@/services/category.service";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 interface Category {
   id: string;
   name: string;
 }
 
-interface ProviderProps {
+interface FilterProps {
   providerId: string;
+  activeCategoryId: string;
+  setActiveCategoryId: (id: string) => void;
 }
 
-export default function CategoryFilter({ providerId }: ProviderProps) {
+export default function CategoryFilter({ 
+  providerId, 
+  activeCategoryId, 
+  setActiveCategoryId 
+}: FilterProps) {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [active, setActive] = useState<string>("");
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const data = await categoryServices.getCategoriesByProvider(providerId);
-      setCategories(data);
+      try {
+        const data = await categoryServices.getCategoriesByProvider(providerId);
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
     };
 
     if (providerId) {
@@ -28,31 +38,33 @@ export default function CategoryFilter({ providerId }: ProviderProps) {
   }, [providerId]);
 
   return (
-    <div className="flex gap-3 overflow-x-auto mb-8">
-      {/* All button */}
+    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
       <button
-        onClick={() => setActive("")}
-        className={`px-4 py-2 rounded-full text-sm whitespace-nowrap ${
-          active === ""
-            ? "bg-red-500 text-white"
-            : "bg-gray-200 text-gray-700"
+        onClick={() => setActiveCategoryId("")}
+        className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 border ${
+          activeCategoryId === ""
+            ? "bg-gray-900 border-gray-900 text-white shadow-xl shadow-gray-900/20"
+            : "bg-white border-gray-100 text-gray-400 hover:border-gray-900 hover:text-gray-900 shadow-sm"
         }`}
       >
-        All
+        All Selection
       </button>
 
-      {categories.map((cat) => (
-        <button
+      {categories.map((cat, i) => (
+        <motion.button
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.05 }}
           key={cat.id}
-          onClick={() => setActive(cat.id)}
-          className={`px-4 py-2 rounded-full text-sm whitespace-nowrap ${
-            active === cat.id
-              ? "bg-red-500 text-white"
-              : "bg-gray-200 text-gray-700"
+          onClick={() => setActiveCategoryId(cat.id)}
+          className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 border ${
+            activeCategoryId === cat.id
+              ? "bg-gray-900 border-gray-900 text-white shadow-xl shadow-gray-900/20"
+              : "bg-white border-gray-100 text-gray-400 hover:border-gray-900 hover:text-gray-900 shadow-sm"
           }`}
         >
           {cat.name}
-        </button>
+        </motion.button>
       ))}
     </div>
   );
