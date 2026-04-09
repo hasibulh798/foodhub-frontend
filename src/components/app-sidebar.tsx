@@ -34,6 +34,10 @@ const data = {
           title: "Providers",
           url: "/dashboard/providers",
         },
+        {
+          title: "Categories",
+          url: "/dashboard/categories",
+        },
       ],
     },
 

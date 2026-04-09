@@ -65,4 +65,15 @@ export const adminService = {
     return res.data;
   },
 
+  verifyEmail: async (userId: string, isVerified: boolean) => {
+    const res = await fetcher(`${BASE_URL}/admin/verify-email/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ isVerified }),
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to update email verification status");
+    }
+    return res.data;
+  },
+
 };

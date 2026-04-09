@@ -29,67 +29,114 @@ const reviews = [
     rating: 4,
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=150&h=150&auto=format&fit=crop",
   },
+  {
+    id: 4,
+    name: "Khairul Islam",
+    role: "Verified Epicure",
+    content: "The interface is simply stunning. Ordering feels like a premium experience every single time.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=150&h=150&auto=format&fit=crop",
+  },
+  {
+    id: 5,
+    name: "Ayesha Ahmed",
+    role: "Gourmet Critic",
+    content: "Finally a platform that treats local providers with the respect they deserve. Quality is unmatched.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=150&h=150&auto=format&fit=crop",
+  },
+  {
+    id: 6,
+    name: "Tanvir Rahman",
+    role: "Daily Diner",
+    content: "Supporting local businesses has never been this easy or looked this good. Highly recommended!",
+    rating: 4,
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150&h=150&auto=format&fit=crop",
+  },
 ];
 
 export default function ReviewSection() {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const itemsPerPage = 3;
+  const totalPages = Math.ceil(reviews.length / itemsPerPage);
 
   const nextStep = useCallback(() => {
     setDirection(1);
-    setIndex((prev) => (prev + 1) % reviews.length);
-  }, []);
+    setIndex((prev) => (prev + 1) % totalPages);
+  }, [totalPages]);
 
   const prevStep = useCallback(() => {
     setDirection(-1);
-    setIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
-  }, []);
+    setIndex((prev) => (prev - 1 + totalPages) % totalPages);
+  }, [totalPages]);
 
   useEffect(() => {
-    const timer = setInterval(nextStep, 5000);
+    const timer = setInterval(nextStep, 6000); // Slower interval for readability of 3 cards
     return () => clearInterval(timer);
   }, [nextStep]);
 
   const variants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 500 : -500,
+      x: direction > 0 ? 1000 : -1000,
       opacity: 0,
-      scale: 0.9,
     }),
     center: {
       zIndex: 1,
       x: 0,
       opacity: 1,
-      scale: 1,
     },
     exit: (direction: number) => ({
       zIndex: 0,
-      x: direction < 0 ? 500 : -500,
+      x: direction < 0 ? 1000 : -1000,
       opacity: 0,
-      scale: 0.9,
     }),
   };
 
+  const visibleReviews = reviews.slice(index * itemsPerPage, (index * itemsPerPage) + itemsPerPage);
+
   return (
-    <section className="py-24 bg-muted/30 overflow-hidden relative min-h-[600px] flex flex-col justify-center">
-      <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
-            Loved by <span className="text-red-500">Thousands</span>
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-light">
-            Don't just take our word for it. Here's what our community says.
-          </p>
-        </motion.div>
+    <section className="py-32 bg-gray-50 dark:bg-zinc-950/50 overflow-hidden relative min-h-[700px] flex flex-col justify-center">
+      <div className="max-w-7xl mx-auto px-6 mb-20">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="max-w-2xl"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 text-red-600 text-[10px] font-black uppercase tracking-widest mb-6">
+                <Star size={12} fill="currentColor" />
+                Community Stories
+              </div>
+              <h2 className="text-5xl md:text-7xl font-black mb-6 tracking-tighter leading-none dark:text-white">
+                Loved by <span className="text-red-600">Thousands</span>
+              </h2>
+              <p className="text-muted-foreground text-xl font-medium tracking-tight">
+                Join the gourmet revolution. Here's what our community says about their experience.
+              </p>
+            </motion.div>
+            
+            <div className="flex gap-4">
+                <button
+                  onClick={prevStep}
+                  className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-xl hover:bg-red-600 hover:text-white transition-all group"
+                >
+                  <ChevronLeft className="w-6 h-6 group-active:scale-90 transition-transform" />
+                </button>
+                <button
+                  onClick={nextStep}
+                  className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-xl hover:bg-red-600 hover:text-white transition-all group"
+                >
+                  <ChevronRight className="w-6 h-6 group-active:scale-90 transition-transform" />
+                </button>
+            </div>
+        </div>
       </div>
 
-      <div className="relative max-w-4xl mx-auto w-full px-12 h-[350px]">
-        <AnimatePresence initial={false} custom={direction}>
+      <div className="relative max-w-[1400px] mx-auto w-full px-6 min-h-[450px]">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={index}
             custom={direction}
@@ -98,72 +145,66 @@ export default function ReviewSection() {
             animate="center"
             exit="exit"
             transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.4 },
+              x: { type: "spring", stiffness: 200, damping: 25 },
+              opacity: { duration: 0.3 },
             }}
-            className="absolute inset-0 flex items-center justify-center px-4"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <div className="bg-background border rounded-[2rem] p-10 md:p-14 shadow-2xl relative overflow-hidden flex flex-col items-center text-center max-w-2xl">
-              <Quote className="absolute -top-6 -right-6 w-32 h-32 text-red-500/5 rotate-12" />
-              
-              <div className="flex items-center gap-1 mb-8">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-5 h-5 ${
-                      i < reviews[index].rating ? "fill-yellow-500 text-yellow-500" : "text-muted"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <p className="text-xl md:text-2xl leading-relaxed mb-10 font-light italic text-foreground tracking-tight">
-                "{reviews[index].content}"
-              </p>
-
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative w-16 h-16 rounded-full overflow-hidden ring-4 ring-red-500/10 transition-transform hover:scale-110">
-                  <img
-                    src={reviews[index].avatar}
-                    alt={reviews[index].name}
-                    className="w-full h-full object-cover"
-                  />
+            {visibleReviews.map((review, i) => (
+              <motion.div 
+                key={review.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] p-10 shadow-sm relative overflow-hidden flex flex-col items-start text-left group hover:shadow-2xl hover:border-red-500/20 transition-all duration-500 h-full"
+              >
+                <Quote className="absolute -top-6 -right-6 w-32 h-32 text-red-500/5 rotate-12 group-hover:text-red-500/10 transition-colors" />
+                
+                <div className="flex items-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${
+                        i < review.rating ? "fill-yellow-500 text-yellow-500" : "text-gray-100 dark:text-zinc-800"
+                      }`}
+                    />
+                  ))}
                 </div>
-                <div>
-                  <h4 className="font-bold text-lg">{reviews[index].name}</h4>
-                  <p className="text-sm text-red-500 font-medium tracking-wide uppercase">{reviews[index].role}</p>
+
+                <p className="text-xl leading-relaxed mb-10 font-bold text-gray-900 dark:text-white tracking-tight flex-1">
+                  "{review.content}"
+                </p>
+
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="relative w-14 h-14 rounded-2xl overflow-hidden shadow-lg grayscale group-hover:grayscale-0 transition-all duration-500 transform group-hover:rotate-3">
+                    <img
+                      src={review.avatar}
+                      alt={review.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-lg text-gray-900 dark:text-white">{review.name}</h4>
+                    <p className="text-[10px] text-red-500 font-black tracking-[0.2em] uppercase">{review.role}</p>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </motion.div>
         </AnimatePresence>
-
-        {/* Navigation Buttons */}
-        <button
-          onClick={prevStep}
-          className="absolute left-0 top-1/2 -translate-y-1/2 p-4 rounded-full bg-background border shadow-lg hover:bg-red-500 hover:text-white transition-all z-20 hidden md:block"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <button
-          onClick={nextStep}
-          className="absolute right-0 top-1/2 -translate-y-1/2 p-4 rounded-full bg-background border shadow-lg hover:bg-red-500 hover:text-white transition-all z-20 hidden md:block"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </button>
       </div>
 
-      {/* Pagination Dots */}
-      <div className="flex justify-center gap-3 mt-12">
-        {reviews.map((_, i) => (
+      {/* Pagination Bar */}
+      <div className="flex justify-center gap-4 mt-16">
+        {[...Array(totalPages)].map((_, i) => (
           <button
             key={i}
             onClick={() => {
               setDirection(i > index ? 1 : -1);
               setIndex(i);
             }}
-            className={`transition-all duration-300 rounded-full ${
-              i === index ? "w-8 h-2 bg-red-500" : "w-2 h-2 bg-muted hover:bg-muted-foreground"
+            className={`transition-all duration-500 rounded-full ${
+              i === index ? "w-12 h-3 bg-red-600 shadow-lg shadow-red-600/30" : "w-3 h-3 bg-gray-200 dark:bg-zinc-800 hover:bg-red-200"
             }`}
           />
         ))}
@@ -171,4 +212,5 @@ export default function ReviewSection() {
     </section>
   );
 }
+
 

@@ -25,7 +25,7 @@ export const categoryServices = {
     return res.data;
   },
 
-  createCategory: async (data: { name: string }) => {
+  createCategory: async (data: { name: string; iconUrl?: string }) => {
     const res = await fetcher(`${BASE_URL}/categories`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -36,7 +36,7 @@ export const categoryServices = {
     return res.data;
   },
 
-  updateCategory: async (catId: string, data: { name?: string; isActive?: boolean }) => {
+  updateCategory: async (catId: string, data: { name?: string; isActive?: boolean; iconUrl?: string }) => {
     const res = await fetcher(`${BASE_URL}/categories/${catId}`, {
       method: "PATCH",
       body: JSON.stringify(data),

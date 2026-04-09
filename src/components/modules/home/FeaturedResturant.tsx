@@ -38,10 +38,7 @@ export default function FeaturedRestaurantsSection() {
       {/* Background Image with Parallax-esque effect */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000"
-        style={{
-          backgroundImage: "url('/featured-bg.png')",
-          transform: "scale(1.05)",
-        }}
+        
       />
       
       {/* Premium Dark Gradient Overlay */}
