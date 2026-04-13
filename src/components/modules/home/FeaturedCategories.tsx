@@ -1,45 +1,42 @@
 "use client";
 
 import { categoryServices } from "@/services/category.service";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { 
-  Pizza, 
-  Leaf, 
-  Coffee, 
-  Sandwich, 
-  CakeSlice, 
-  Soup, 
-  UtensilsCrossed, 
+  ChevronLeft,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  UtensilsCrossed 
 } from "lucide-react";
 import Link from "next/link";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface Category {
   id: string;
   name: string;
+  iconUrl?: string;
 }
-
-const iconMap: Record<string, any> = {
-  "Pizza": <Pizza size={32} />,
-  "Healthy": <Leaf size={32} />,
-  "Beverages": <Coffee size={32} />,
-  "Fast Food": <Sandwich size={32} />,
-  "Desserts": <CakeSlice size={32} />,
-  "Traditional": <Soup size={32} />,
-  "default": <UtensilsCrossed size={32} />
-};
 
 export default function FeaturedCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     async function fetchCategories() {
       try {
         const data = await categoryServices.getAllCategories();
-        setCategories(data.slice(0, 8)); // Show top 8
+        // Defensive check for array structure
+        const categoryData = Array.isArray(data) ? data : (data?.data || []);
+        setCategories(categoryData); 
       } catch (err) {
         console.error("Failed to fetch categories:", err);
       } finally {
@@ -49,65 +46,119 @@ export default function FeaturedCategories() {
     fetchCategories();
   }, []);
 
-  if (loading) return null;
+  if (loading || categories.length === 0) return null;
 
   return (
-    <section className="py-24 bg-white dark:bg-[#0a0a0a]">
+    <section className="py-24 bg-[#F8F9FA] dark:bg-[#0a0a0a] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
             >
-                <div className="flex items-center gap-2 text-orange-600 font-black text-[10px] uppercase tracking-[0.3em] mb-4">
-                    <TrendingUp size={14} />
-                    Popular Cravings
+                <div className="flex items-center gap-2 text-orange-600 font-bold text-xs uppercase tracking-widest mb-3">
+                    <TrendingUp size={16} />
+                    Featured Collections
                 </div>
-                <h2 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-none mb-6">
+                <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
                     Browse By <span className="text-orange-600">Category</span>
                 </h2>
-                <p className="text-gray-400 text-lg font-medium tracking-tight max-w-xl">
-                    Discover your next favorite meal through our curated collections of local and international flavors.
-                </p>
             </motion.div>
 
-            <Link href="/restaurants" className="group flex items-center gap-3 px-8 py-4 rounded-2xl bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 text-sm font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition-all shadow-sm">
-                View All Specialties
-                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="flex items-center gap-3">
+                <button 
+                  ref={prevRef}
+                  className="w-12 h-12 rounded-full border border-gray-200 dark:border-zinc-800 flex items-center justify-center bg-white dark:bg-zinc-900 text-gray-600 dark:text-gray-400 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-sm"
+                >
+                    <ChevronLeft size={20} />
+                </button>
+                <button 
+                  ref={nextRef}
+                  className="w-12 h-12 rounded-full border border-gray-200 dark:border-zinc-800 flex items-center justify-center bg-white dark:bg-zinc-900 text-gray-600 dark:text-gray-400 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-sm"
+                >
+                    <ChevronRight size={20} />
+                </button>
+            </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6">
-            {categories.map((category, i) => (
-                <motion.div
-                    key={category.id}
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    viewport={{ once: true }}
+        <div className="relative group">
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay]}
+            spaceBetween={24}
+            slidesPerView={2}
+            navigation={{
+              prevEl: prevRef.current,
+              nextEl: nextRef.current,
+            }}
+            onBeforeInit={(swiper) => {
+              // @ts-ignore
+              swiper.params.navigation.prevEl = prevRef.current;
+              // @ts-ignore
+              swiper.params.navigation.nextEl = nextRef.current;
+            }}
+            pagination={{ 
+              clickable: true,
+              dynamicBullets: true,
+            }}
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            breakpoints={{
+              640: { slidesPerView: 3 },
+              768: { slidesPerView: 4 },
+              1024: { slidesPerView: 5 },
+              1280: { slidesPerView: 6 },
+            }}
+            className="pb-16 !overflow-visible"
+          >
+            {categories.map((category) => (
+              <SwiperSlide key={category.id}>
+                <Link 
+                  href={`/restaurants?category=${category.id}`} 
+                  className="flex flex-col items-center p-6 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
                 >
-                    <Link href={`/restaurants?category=${category.id}`} className="group relative flex flex-col items-center justify-center p-10 bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-orange-500/30 hover:shadow-2xl hover:shadow-orange-600/5 hover:-translate-y-2">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-600/20 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
-                        
-                        <div className="mb-6 w-20 h-20 rounded-3xl bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-400 group-hover:text-orange-600 group-hover:bg-orange-50 transition-all duration-500 shadow-sm group-hover:shadow-xl group-hover:rotate-6">
-                            {iconMap[category.name] || iconMap["default"]}
-                        </div>
-
-                        <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight group-hover:text-orange-600 transition-colors">
-                            {category.name}
-                        </h3>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            Explore Selection
-                        </p>
-
-                        {/* Background Decor */}
-                        <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-orange-600/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </Link>
-                </motion.div>
+                  <div className="w-20 h-20 rounded-full bg-[#FFF5EE] dark:bg-orange-900/10 flex items-center justify-center mb-4 group-hover:bg-orange-600 transition-colors duration-500 overflow-hidden">
+                    {category.iconUrl ? (
+                      <img 
+                        src={category.iconUrl} 
+                        alt={category.name} 
+                        className="w-12 h-12 object-contain group-hover:brightness-0 group-hover:invert transition-all duration-500" 
+                      />
+                    ) : (
+                      <UtensilsCrossed size={32} className="text-orange-600 group-hover:text-white transition-colors duration-500" />
+                    )}
+                  </div>
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white text-center group-hover:text-orange-600 transition-colors">
+                    {category.name}
+                  </h3>
+                </Link>
+              </SwiperSlide>
             ))}
+          </Swiper>
         </div>
       </div>
+
+      <style jsx global>{`
+        .swiper-pagination-bullet {
+          width: 8px;
+          height: 8px;
+          background: #D1D5DB;
+          opacity: 1;
+          transition: all 0.3s ease;
+        }
+        .swiper-pagination-bullet-active {
+          width: 24px;
+          border-radius: 4px;
+          background: #EA580C !important;
+        }
+        .dark .swiper-pagination-bullet {
+          background: #3F3F46;
+        }
+      `}</style>
     </section>
   );
 }
+

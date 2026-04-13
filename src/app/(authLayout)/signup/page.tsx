@@ -30,7 +30,7 @@ export default function SignupPage() {
             </p>
           </div>
           <Image
-            src="/signup_illustration_1775731937938.png"
+            src="/signup-illustration.png"
             alt="Signup Illustration"
             fill
             className="object-cover opacity-80"

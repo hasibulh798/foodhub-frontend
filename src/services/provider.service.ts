@@ -20,8 +20,9 @@ export const providerServices = {
       return { data: null, error: error.message ||"Failed to create resturant" };
     }
   },
-  getProviders: async () => {
-    const res = await fetcher(`${BASE_URL}/providers`, { cache: "no-store" });
+  getProviders: async (params: Record<string, any> = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const res = await fetcher(`${BASE_URL}/providers?${queryString}`, { cache: "no-store" });
 
     if (!res.success) {
       throw new Error("Failed to fetch providers");

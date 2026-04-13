@@ -1,8 +1,15 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useRef } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const reviews = [
   {
@@ -56,47 +63,11 @@ const reviews = [
 ];
 
 export default function ReviewSection() {
-  const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
-  const itemsPerPage = 3;
-  const totalPages = Math.ceil(reviews.length / itemsPerPage);
-
-  const nextStep = useCallback(() => {
-    setDirection(1);
-    setIndex((prev) => (prev + 1) % totalPages);
-  }, [totalPages]);
-
-  const prevStep = useCallback(() => {
-    setDirection(-1);
-    setIndex((prev) => (prev - 1 + totalPages) % totalPages);
-  }, [totalPages]);
-
-  useEffect(() => {
-    const timer = setInterval(nextStep, 6000); // Slower interval for readability of 3 cards
-    return () => clearInterval(timer);
-  }, [nextStep]);
-
-  const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-    center: {
-      zIndex: 1,
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      zIndex: 0,
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-  };
-
-  const visibleReviews = reviews.slice(index * itemsPerPage, (index * itemsPerPage) + itemsPerPage);
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <section className="py-32 bg-gray-50 dark:bg-zinc-950/50 overflow-hidden relative min-h-[700px] flex flex-col justify-center">
+    <section className="py-32 bg-gray-50 dark:bg-zinc-950/50 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-6 mb-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <motion.div
@@ -120,13 +91,13 @@ export default function ReviewSection() {
             
             <div className="flex gap-4">
                 <button
-                  onClick={prevStep}
+                  ref={prevRef}
                   className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-xl hover:bg-red-600 hover:text-white transition-all group"
                 >
                   <ChevronLeft className="w-6 h-6 group-active:scale-90 transition-transform" />
                 </button>
                 <button
-                  onClick={nextStep}
+                  ref={nextRef}
                   className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 shadow-xl hover:bg-red-600 hover:text-white transition-all group"
                 >
                   <ChevronRight className="w-6 h-6 group-active:scale-90 transition-transform" />
@@ -135,29 +106,39 @@ export default function ReviewSection() {
         </div>
       </div>
 
-      <div className="relative max-w-[1400px] mx-auto w-full px-6 min-h-[450px]">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div
-            key={index}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 200, damping: 25 },
-              opacity: { duration: 0.3 },
-            }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {visibleReviews.map((review, i) => (
-              <motion.div 
-                key={review.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] p-10 shadow-sm relative overflow-hidden flex flex-col items-start text-left group hover:shadow-2xl hover:border-red-500/20 transition-all duration-500 h-full"
-              >
+      <div className="max-w-[1400px] mx-auto w-full px-6">
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          spaceBetween={32}
+          slidesPerView={1}
+          slidesPerGroup={1}
+          navigation={{
+            prevEl: prevRef.current,
+            nextEl: nextRef.current,
+          }}
+          onBeforeInit={(swiper) => {
+            // @ts-ignore
+            swiper.params.navigation.prevEl = prevRef.current;
+            // @ts-ignore
+            swiper.params.navigation.nextEl = nextRef.current;
+          }}
+          pagination={{ 
+            clickable: true,
+            dynamicBullets: true,
+          }}
+          autoplay={{
+            delay: 5000,
+            disableOnInteraction: false,
+          }}
+          breakpoints={{
+            768: { slidesPerView: 2, slidesPerGroup: 1 },
+            1024: { slidesPerView: 3, slidesPerGroup: 1 },
+          }}
+          className="pb-20 !overflow-visible"
+        >
+          {reviews.map((review) => (
+            <SwiperSlide key={review.id}>
+              <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[2.5rem] p-10 shadow-sm relative overflow-hidden flex flex-col items-start text-left group hover:shadow-2xl hover:border-red-500/20 transition-all duration-500 h-[400px]">
                 <Quote className="absolute -top-6 -right-6 w-32 h-32 text-red-500/5 rotate-12 group-hover:text-red-500/10 transition-colors" />
                 
                 <div className="flex items-center gap-1 mb-6">
@@ -188,27 +169,29 @@ export default function ReviewSection() {
                     <p className="text-[10px] text-red-500 font-black tracking-[0.2em] uppercase">{review.role}</p>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
 
-      {/* Pagination Bar */}
-      <div className="flex justify-center gap-4 mt-16">
-        {[...Array(totalPages)].map((_, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              setDirection(i > index ? 1 : -1);
-              setIndex(i);
-            }}
-            className={`transition-all duration-500 rounded-full ${
-              i === index ? "w-12 h-3 bg-red-600 shadow-lg shadow-red-600/30" : "w-3 h-3 bg-gray-200 dark:bg-zinc-800 hover:bg-red-200"
-            }`}
-          />
-        ))}
-      </div>
+      <style jsx global>{`
+        .swiper-pagination-bullet {
+          width: 8px;
+          height: 8px;
+          background: #D1D5DB;
+          opacity: 1;
+          transition: all 0.3s ease;
+        }
+        .swiper-pagination-bullet-active {
+          width: 32px;
+          border-radius: 4px;
+          background: #EF4444 !important;
+        }
+        .dark .swiper-pagination-bullet {
+          background: #3F3F46;
+        }
+      `}</style>
     </section>
   );
 }

@@ -22,8 +22,11 @@ export default function FeaturedRestaurantsSection() {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const data = await providerServices.getProviders();
-        setRestaurants(data.slice(0, 3)); // Show top 3 featured
+        const res = await providerServices.getProviders();
+        // Defensive check for paginated data structure or flat array
+        const restaurantData = Array.isArray(res) ? res : (res?.data || []);
+        setRestaurants(restaurantData.slice(0, 3)); 
+
       } catch (error) {
         console.error("Failed to fetch restaurants:", error);
       } finally {

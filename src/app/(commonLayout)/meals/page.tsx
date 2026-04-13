@@ -62,10 +62,10 @@ export default function MealsPage() {
       const filteredParams = Object.fromEntries(
         Object.entries(params).filter(([_, v]) => v != null && v !== ""),
       );
-      const data = await mealServices.getAllMeals(filteredParams);
-      console.log("MealPage meal: ", data.totalPages);
-      setMeals(data);
-      setTotalPages(data.totalPages);
+      const res = await mealServices.getAllMeals(filteredParams);
+      const mealData = Array.isArray(res) ? res : (res?.data || []);
+      setMeals(mealData);
+      setTotalPages(res?.totalPages || 1);
     };
 
     fetchMeals();
