@@ -52,7 +52,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const { data: session, error } = await userService.getSession();
-  console.log('session: ', session);
+
   const isLoggedIn = !!session?.user;
 
   // ① Authenticated user hitting a login/signup page → send to dashboard

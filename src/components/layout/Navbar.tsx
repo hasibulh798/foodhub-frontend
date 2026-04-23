@@ -147,7 +147,7 @@ export default function Navbar() {
                     <p className="font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
                   </div>
                   <div className="p-1">
-                    <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 font-bold group" onClick={() => setOpen(false)}>
+                    <Link href="/dashboard/profile" className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 font-bold group" onClick={() => setOpen(false)}>
                         <User size={18} className="text-gray-400 group-hover:text-orange-600" />
                         Profile Settings
                     </Link>

@@ -24,10 +24,19 @@ export const orderService = {
     const res = await fetcher(`${BASE_URL}/orders`, {
       cache: "no-store",
     });
+    // Treat "no orders found" as an empty list, not an error
     if (!res.success) {
+      const msg = (res.message || "").toLowerCase();
+      if (
+        msg.includes("no order found") ||
+        msg.includes("failed to fetch orders") ||
+        msg.includes("no data")
+      ) {
+        return [];
+      }
       throw new Error(res.message || "Failed to fetch orders");
     }
-    return res.data;
+    return Array.isArray(res.data) ? res.data : [];
   },
   
 
@@ -50,10 +59,18 @@ export const orderService = {
     });
 
     if (!res.success) {
+      const msg = (res.message || "").toLowerCase();
+      if (
+        msg.includes("no order") ||
+        msg.includes("not found") ||
+        msg.includes("no data")
+      ) {
+        return [];
+      }
       throw new Error("Failed to fetch orders");
     }
 
-    return res.data;
-  },    
+    return Array.isArray(res.data) ? res.data : [];
+  },
   
 };
