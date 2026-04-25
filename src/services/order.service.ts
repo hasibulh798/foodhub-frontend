@@ -16,8 +16,9 @@ export const orderService = {
     });
 
     if (!res.success) {
-      throw new Error("Failed to creare Order");
+      throw new Error(res.message || "Failed to create Order");
     }
+    return res.data;
   },
 
   getMyOrders: async () => {

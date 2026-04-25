@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/Cart-context";
 import { orderService, OrderTypes } from "@/services/order.service";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const { items:cartItems, clearCart } = useCart();
@@ -42,13 +43,18 @@ const totalPrice = subtotalPrice + deliveryFee
 
       const res = await orderService.createOrder(orderPayload as OrderTypes);
 
+      if (res?.paymentUrl) {
+        window.location.replace(res.paymentUrl);
+        return;
+      }
+
       clearCart();
-      alert("Order placed successfully 🎉");
+      toast.success("Order placed successfully 🎉");
       router.push("/order-success");
 
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Something went wrong");
+      toast.error(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
