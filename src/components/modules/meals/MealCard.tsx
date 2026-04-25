@@ -128,7 +128,9 @@ export default function MealCard({ provider, meal }: MealCardProps) {
       <div className="p-8 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-4 mb-3">
             <h3 className="text-xl font-black text-gray-900 dark:text-white leading-tight group-hover:text-orange-600 transition-colors">
-                {meal.name}
+                <Link href={`/restaurants/${provider?.id}/meals/${meal.id}`} className="hover:text-orange-600 transition-colors"  >
+                    {meal.name}
+                </Link>
             </h3>
             <div className="flex flex-col items-end">
                 <span className="text-lg font-black text-orange-600 tabular-nums">
@@ -187,7 +189,7 @@ export default function MealCard({ provider, meal }: MealCardProps) {
                         {meal.isAvailable ? (
                             <>
                                 <Utensils size={14} className="stroke-[3] group-hover:rotate-12 transition-transform" />
-                                <span>Add to selection</span>
+                                <span>Add to Cart</span>
                                 <Plus size={12} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                             </>
                         ) : (

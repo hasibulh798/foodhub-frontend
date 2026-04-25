@@ -44,4 +44,14 @@ export const reviewServices = {
     }
     return res.data;
   },
+
+  getPublicReviews: async () => {
+    const res = await fetcher(`${BASE_URL}/reviews/public`, {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to fetch public reviews");
+    }
+    return res.data;
+  },
 };

@@ -72,5 +72,26 @@ export const orderService = {
 
     return Array.isArray(res.data) ? res.data : [];
   },
-  
+
+  getSingleOrder: async (orderId: string) => {
+    const res = await fetcher(`${BASE_URL}/orders/${orderId}`, {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to fetch order details");
+    }
+    return res.data;
+  },
+
+  cancelOrder: async (orderId: string) => {
+    const res = await fetcher(`${BASE_URL}/orders/${orderId}`, {
+      method: "DELETE",
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to cancel order");
+    }
+    return res.data;
+  },
 };
+

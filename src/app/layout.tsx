@@ -13,6 +13,7 @@ import "./globals.css";
 // });
 import { CartProvider } from "@/lib/Cart-context";
 import { ThemeProvider } from "@/providers/ThemeProvider";
+import QueryProvider from "@/providers/QueryProvider";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -29,10 +30,12 @@ export default async function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider>
-          <CartProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-          </CartProvider>
+          <QueryProvider>
+            <CartProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </CartProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

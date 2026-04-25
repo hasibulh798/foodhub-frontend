@@ -69,13 +69,13 @@ export default function FeaturedCategories() {
             <div className="flex items-center gap-3">
                 <button 
                   ref={prevRef}
-                  className="w-12 h-12 rounded-full border border-gray-200 dark:border-zinc-800 flex items-center justify-center bg-white dark:bg-zinc-900 text-gray-600 dark:text-gray-400 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-sm"
+                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-zinc-800 flex items-center justify-center bg-white dark:bg-zinc-900 text-gray-600 dark:text-gray-400 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-sm"
                 >
                     <ChevronLeft size={20} />
                 </button>
                 <button 
                   ref={nextRef}
-                  className="w-12 h-12 rounded-full border border-gray-200 dark:border-zinc-800 flex items-center justify-center bg-white dark:bg-zinc-900 text-gray-600 dark:text-gray-400 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-sm"
+                  className="w-8 h-8 rounded-full border border-gray-200 dark:border-zinc-800 flex items-center justify-center bg-white dark:bg-zinc-900 text-gray-600 dark:text-gray-400 hover:bg-orange-600 hover:text-white hover:border-orange-600 transition-all shadow-sm"
                 >
                     <ChevronRight size={20} />
                 </button>
@@ -117,15 +117,15 @@ export default function FeaturedCategories() {
             {categories.map((category) => (
               <SwiperSlide key={category.id}>
                 <Link 
-                  href={`/restaurants?category=${category.id}`} 
-                  className="flex flex-col items-center p-6 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
+                  href={`/meals?category=${category.id}`} 
+                  className="flex flex-col items-center p-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
                 >
-                  <div className="w-20 h-20 rounded-full bg-[#FFF5EE] dark:bg-orange-900/10 flex items-center justify-center mb-4 group-hover:bg-orange-600 transition-colors duration-500 overflow-hidden">
+                  <div className="w-20 h-20 rounded-full bg-[#FFF5EE] dark:bg-orange-900/10 flex items-center justify-center mb-4 overflow-hidden">
                     {category.iconUrl ? (
                       <img 
                         src={category.iconUrl} 
                         alt={category.name} 
-                        className="w-12 h-12 object-contain group-hover:brightness-0 group-hover:invert transition-all duration-500" 
+                        className="w-16 h-16 object-contain" 
                       />
                     ) : (
                       <UtensilsCrossed size={32} className="text-orange-600 group-hover:text-white transition-colors duration-500" />

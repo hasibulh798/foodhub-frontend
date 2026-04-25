@@ -96,113 +96,119 @@ export default function MealsPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
         {/* FILTER PANEL */}
-        <aside className="w-full md:w-64 shrink-0 bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-lg font-bold mb-4">Filters</h2>
+<aside className="w-full md:w-64 shrink-0 bg-white dark:bg-gray-900 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+  <h2 className="text-lg font-bold mb-4 text-gray-800 dark:text-white">
+    Filters
+  </h2>
 
-          {/* Search */}
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search meals..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
+  {/* Search */}
+  <div className="mb-4">
+    <input
+      type="text"
+      placeholder="Search meals..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
 
-          {/* Availability */}
-          <div className="mb-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isAvailable}
-                onChange={(e) => setIsAvailable(e.target.checked)}
-              />
-              Available Only
-            </label>
-          </div>
+  {/* Availability */}
+  <div className="mb-4">
+    <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+      <input
+        type="checkbox"
+        checked={isAvailable}
+        onChange={(e) => setIsAvailable(e.target.checked)}
+        className="accent-blue-500"
+      />
+      Available Only
+    </label>
+  </div>
 
-          {/* Dietary Type */}
-          <div className="mb-4">
-            <label className="block font-medium mb-2">Dietary Type</label>
-            <select
-              value={dietaryType}
-              onChange={(e) => setDietaryType(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">All</option>
-              {dietaryOptions.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          </div>
+  {/* Dietary Type */}
+  <div className="mb-4">
+    <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+      Dietary Type
+    </label>
+    <select
+      value={dietaryType}
+      onChange={(e) => setDietaryType(e.target.value)}
+      className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded px-3 py-2 focus:outline-none"
+    >
+      <option value="">All</option>
+      {dietaryOptions.map((opt) => (
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
+  </div>
 
-          {/* Category */}
-          <div className="mb-4">
-            <label className="block font-medium mb-2">Category</label>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">All</option>
+  {/* Category */}
+  <div className="mb-4">
+    <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+      Category
+    </label>
+    <select
+      value={categoryId}
+      onChange={(e) => setCategoryId(e.target.value)}
+      className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded px-3 py-2 focus:outline-none"
+    >
+      <option value="">All</option>
 
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      {categories.map((cat) => (
+        <option key={cat.id} value={cat.id}>
+          {cat.name}
+        </option>
+      ))}
+    </select>
+  </div>
 
-          {/* Price Range */}
-          {/* Price Range */}
-          <div className="mb-4">
-            <label className="block font-medium mb-2">
-              Price Range: ${priceRange[0]} - ${priceRange[1]}
-            </label>
+  {/* Price Range */}
+  <div className="mb-4">
+    <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+      Price Range: ${priceRange[0]} - ${priceRange[1]}
+    </label>
 
-            <div className="flex gap-3">
-              {/* Min Price */}
-              <input
-                type="number"
-                placeholder="Min"
-                value={priceRange[0]}
-                onChange={(e) =>
-                  setPriceRange([Number(e.target.value), priceRange[1]])
-                }
-                className="border p-2 w-1/2 rounded"
-              />
+    <div className="flex gap-3">
+      {/* Min Price */}
+      <input
+        type="number"
+        placeholder="Min"
+        value={priceRange[0]}
+        onChange={(e) =>
+          setPriceRange([Number(e.target.value), priceRange[1]])
+        }
+        className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-2 w-1/2 rounded"
+      />
 
-              {/* Max Price */}
-              <input
-                type="number"
-                placeholder="Max"
-                value={priceRange[1]}
-                onChange={(e) =>
-                  setPriceRange([priceRange[0], Number(e.target.value)])
-                }
-                className="border p-2 w-1/2 rounded"
-              />
-            </div>
-          </div>
+      {/* Max Price */}
+      <input
+        type="number"
+        placeholder="Max"
+        value={priceRange[1]}
+        onChange={(e) =>
+          setPriceRange([priceRange[0], Number(e.target.value)])
+        }
+        className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-2 w-1/2 rounded"
+      />
+    </div>
+  </div>
 
-          {/* Reset Filters */}
-          <button
-            onClick={() => {
-              setSearch("");
-              setIsAvailable(false);
-              setDietaryType("");
-              setCategoryId("");
-              setPriceRange([0, 1000]);
-            }}
-            className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition"
-          >
-            Reset Filters
-          </button>
-        </aside>
+  {/* Reset Filters */}
+  <button
+    onClick={() => {
+      setSearch("");
+      setIsAvailable(false);
+      setDietaryType("");
+      setCategoryId("");
+      setPriceRange([0, 1000]);
+    }}
+    className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded transition"
+  >
+    Reset Filters
+  </button>
+</aside>
 
         {/* MEAL LIST */}
         <main className="flex-1">

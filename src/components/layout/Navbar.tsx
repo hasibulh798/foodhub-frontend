@@ -22,6 +22,7 @@ export default function Navbar() {
   const navigationMenuList: NavMenu[] = [
     { name: "Home", url: "/" },
     { name: "Restaurants", url: "/restaurants" },
+    { name: "Meals", url: "/meals" },
     { name: "About Hub", url: "/about" },
     { name: "Contact", url: "/contact" },
   ];
