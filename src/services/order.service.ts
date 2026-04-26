@@ -85,8 +85,8 @@ export const orderService = {
   },
 
   cancelOrder: async (orderId: string) => {
-    const res = await fetcher(`${BASE_URL}/orders/${orderId}`, {
-      method: "DELETE",
+    const res = await fetcher(`${BASE_URL}/orders/${orderId}/cancel`, {
+      method: "PATCH",
       cache: "no-store",
     });
     if (!res.success) {

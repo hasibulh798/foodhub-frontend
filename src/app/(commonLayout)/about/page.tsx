@@ -109,18 +109,18 @@ export default function AboutPage() {
             <div className="order-2 lg:order-1 relative grid grid-cols-2 gap-4">
               <div className="space-y-4 pt-12">
                  <div className="relative rounded-[2rem] overflow-hidden aspect-square">
-                    <Image src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop" alt="Kitchen" fill className="object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop" alt="Kitchen" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                  </div>
                  <div className="relative rounded-[2rem] overflow-hidden aspect-square border-4 border-orange-500 shadow-xl">
-                    <Image src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop" alt="Chef" fill className="object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1974&auto=format&fit=crop" alt="Chef" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                  </div>
               </div>
               <div className="space-y-4">
                  <div className="relative rounded-[2rem] overflow-hidden aspect-square">
-                    <Image src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop" alt="Restaurant" fill className="object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop" alt="Restaurant" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                  </div>
                  <div className="relative rounded-[2rem] overflow-hidden aspect-square">
-                    <Image src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop" alt="Dining" fill className="object-cover" />
+                    <Image src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop" alt="Dining" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                  </div>
               </div>
             </div>

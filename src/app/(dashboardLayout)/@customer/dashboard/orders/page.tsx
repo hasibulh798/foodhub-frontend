@@ -11,10 +11,13 @@ import {
   TrendingUp,
   Search,
   ChevronRight,
-  Utensils
+  Utensils,
+  AlertTriangle,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: any; label: string }> = {
   PENDING: { color: "text-amber-400", bg: "bg-amber-400/10", icon: Clock, label: "Pending" },
@@ -29,6 +32,8 @@ export default function CustomerOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("ALL");
+  const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -43,6 +48,23 @@ export default function CustomerOrdersPage() {
     };
     fetchOrders();
   }, []);
+
+  const handleCancelOrder = async () => {
+    if (!orderToCancel) return;
+
+    setIsCancelling(true);
+    const toastId = toast.loading("Cancelling order...");
+    try {
+      await orderService.cancelOrder(orderToCancel);
+      toast.success("Order cancelled successfully", { id: toastId });
+      setOrders(prev => prev.map(o => o.id === orderToCancel ? { ...o, status: "CANCELLED" } : o));
+      setOrderToCancel(null);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to cancel order", { id: toastId });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   const filteredOrders = filter === "ALL" 
     ? orders 
@@ -126,6 +148,14 @@ export default function CustomerOrdersPage() {
                     Details
                     <ChevronRight size={14} />
                   </Link>
+                  {order.status === "PENDING" && (
+                    <button 
+                      onClick={() => setOrderToCancel(order.id)}
+                      className="bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white border border-rose-500/20 px-5 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95"
+                    >
+                      Cancel Order
+                    </button>
+                  )}
                   {order.status === "DELIVERED" && (
                      <button className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-orange-600/10 active:scale-95">
                       Reorder
@@ -147,6 +177,74 @@ export default function CustomerOrdersPage() {
           </div>
         )}
       </div>
+
+      {/* ─── Cancel Confirmation Modal ─── */}
+      <AnimatePresence>
+        {orderToCancel && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            {/* Overlay */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !isCancelling && setOrderToCancel(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            
+            {/* Modal Content */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-8 overflow-hidden shadow-2xl"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-rose-600" />
+              
+              <button 
+                onClick={() => setOrderToCancel(null)}
+                disabled={isCancelling}
+                className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex flex-col items-center text-center space-y-6">
+                <div className="w-20 h-20 bg-rose-500/10 rounded-3xl flex items-center justify-center text-rose-500">
+                  <AlertTriangle size={40} />
+                </div>
+                
+                <div>
+                  <h2 className="text-2xl font-black text-white tracking-tight">Cancel Order?</h2>
+                  <p className="text-gray-400 text-sm font-medium mt-2 leading-relaxed">
+                    Are you sure you want to cancel this order? This action cannot be undone and your meal preparation will be stopped.
+                  </p>
+                </div>
+
+                <div className="w-full flex flex-col gap-3 pt-4">
+                  <button 
+                    onClick={handleCancelOrder}
+                    disabled={isCancelling}
+                    className="w-full h-14 bg-rose-600 hover:bg-rose-700 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-rose-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    {isCancelling ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      "Yes, Cancel Order"
+                    )}
+                  </button>
+                  <button 
+                    onClick={() => setOrderToCancel(null)}
+                    disabled={isCancelling}
+                    className="w-full h-14 bg-zinc-800 hover:bg-zinc-700 text-gray-300 font-black uppercase tracking-widest text-[10px] rounded-2xl active:scale-[0.98] transition-all"
+                  >
+                    Keep Order
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
