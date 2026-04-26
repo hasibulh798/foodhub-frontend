@@ -117,7 +117,7 @@ export default function FeaturedCategories() {
             {categories.map((category) => (
               <SwiperSlide key={category.id}>
                 <Link 
-                  href={`/meals?category=${category.id}`} 
+                  href={`/meals?categoryId=${category.id}`} 
                   className="flex flex-col items-center p-4 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-2xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group"
                 >
                   <div className="w-20 h-20 rounded-full bg-[#FFF5EE] dark:bg-orange-900/10 flex items-center justify-center mb-4 overflow-hidden">

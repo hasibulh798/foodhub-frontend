@@ -1,5 +1,5 @@
 "use client";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
 export interface CartItem {
   mealId: string;
@@ -24,8 +24,29 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const addItem = (meal: Omit<CartItem, "quantity">) => {
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem("food-hub-cart");
+    if (savedCart) {
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Failed to parse cart from localStorage", e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("food-hub-cart", JSON.stringify(items));
+    }
+  }, [items, isLoaded]);
+
+  const addItem = useCallback((meal: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.mealId === meal.mealId);
       if (existing) {
@@ -35,28 +56,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { ...meal, quantity: 1 }];
     });
-  };
+  }, []);
 
-  const removeItem = (mealId: string) => {
+  const removeItem = useCallback((mealId: string) => {
     setItems((prev) => prev.filter((i) => i.mealId !== mealId));
-  };
-  const increaseQty = (mealId: string) =>
+  }, []);
+
+  const increaseQty = useCallback((mealId: string) =>
     setItems((prev) =>
       prev.map((i) =>
         i.mealId === mealId ? { ...i, quantity: i.quantity + 1 } : i,
       ),
-    );
-  const clearCart = () => {
+    ), []);
+
+  const clearCart = useCallback(() => {
     setItems([]);
-  };
-  const decreaseQty = (mealId: string) =>
+  }, []);
+
+  const decreaseQty = useCallback((mealId: string) =>
     setItems((prev) =>
       prev
         .map((i) =>
           i.mealId === mealId ? { ...i, quantity: i.quantity - 1 } : i,
         )
         .filter((i) => i.quantity > 0),
-    );
+    ), []);
   const count = items.reduce((acc, i) => acc + i.quantity, 0);
   const totalPrice = items.reduce((acc, i) => acc + i.quantity * i.price, 0);
 

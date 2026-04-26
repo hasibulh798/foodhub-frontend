@@ -3,9 +3,25 @@
 import MealCard from "@/components/modules/meals/MealCard";
 import { categoryServices } from "@/services/category.service";
 import { mealServices } from "@/services/meal.service";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Search, 
+  Filter, 
+  RotateCcw, 
+  Utensils,
+  Leaf,
+  Beef,
+  Flame,
+  LayoutGrid
+} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface Meal {
   id: string;
@@ -16,42 +32,73 @@ interface Meal {
   isAvailable: boolean;
   dietaryType?: "VEG" | "NON_VEG" | "VEGAN" | null;
 }
+
 type Category = {
   id: string;
   name: string;
 };
 
-const dietaryOptions = ["VEG", "NON_VEG", "VEGAN"];
+const dietaryOptions = [
+  { value: "VEG", label: "Vegetarian", icon: Leaf },
+  { value: "NON_VEG", label: "Non-Veg", icon: Beef },
+  { value: "VEGAN", label: "Vegan", icon: Flame },
+];
 
-export default function MealsPage() {
+function MealsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const urlSearch = searchParams.get("search") || "";
+  const urlCategoryId = searchParams.get("categoryId") || "";
+
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(urlSearch);
   const [isAvailable, setIsAvailable] = useState(true);
   const [dietaryType, setDietaryType] = useState<string>("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>(urlCategoryId);
+  const [loading, setLoading] = useState(true);
 
-  const searchParams = useSearchParams();
-  const urlSearch = searchParams.get("search") || "";
+  // Sync with URL params when they change
+  useEffect(() => {
+    if (urlCategoryId) {
+      setCategoryId(urlCategoryId);
+    } else {
+      setCategoryId("");
+    }
+  }, [urlCategoryId]);
+
+  useEffect(() => {
+    if (urlSearch) {
+      setSearch(urlSearch);
+    } else {
+      setSearch("");
+    }
+  }, [urlSearch]);
 
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-      const data = await categoryServices.getAllCategories();
-      setCategories(data);
+      try {
+        const data = await categoryServices.getAllCategories();
+        const categoryData = Array.isArray(data) ? data : (data?.data || []);
+        setCategories(categoryData);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
     };
-
     fetchCategories();
   }, []);
 
   // Fetch meals
-  useEffect(() => {
-    const fetchMeals = async () => {
+  const fetchMeals = useCallback(async () => {
+    setLoading(true);
+    try {
       const params = {
-        search: search || urlSearch,
+        search,
         isAvailable,
         dietaryType,
         categoryId,
@@ -59,193 +106,290 @@ export default function MealsPage() {
         maxPrice: priceRange[1],
         page,
       };
+      
       const filteredParams = Object.fromEntries(
-        Object.entries(params).filter(([_, v]) => v != null && v !== ""),
+        Object.entries(params).filter(([_, v]) => v != null && v !== "")
       );
+      
       const res = await mealServices.getAllMeals(filteredParams);
       const mealData = Array.isArray(res) ? res : (res?.data || []);
       setMeals(mealData);
       setTotalPages(res?.totalPages || 1);
-    };
+    } catch (err) {
+      console.error("Failed to fetch meals", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, isAvailable, dietaryType, categoryId, priceRange, page]);
 
+  useEffect(() => {
     fetchMeals();
-  }, [
-    search,
-    urlSearch,
-    isAvailable,
-    dietaryType,
-    categoryId,
-    priceRange,
-    page,
-  ]);
+  }, [fetchMeals]);
+
+  const resetFilters = () => {
+    setSearch("");
+    setIsAvailable(true);
+    setDietaryType("");
+    setCategoryId("");
+    setPriceRange([0, 2000]);
+    setPage(1);
+    router.push("/meals");
+  };
 
   return (
-    <div>
-      {/* Meals Header */}
-            {/* HERO SECTION */}
-      <section className="bg-red-500 text-white py-20 px-4 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            All Meals
-          </h1>
-          <p className="text-lg text-white/90">
-            Choose Your Favourite Meal.
-          </p>
+    <div className="min-h-screen bg-gray-50/30">
+      {/* Premium Hero Section */}
+      <section className="relative h-[300px] flex items-center justify-center overflow-hidden bg-zinc-900">
+        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-red-600/20 z-10" />
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-40 scale-105" />
+        
+        <div className="relative z-20 text-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
+              Delicious <span className="text-orange-500">Meals</span>
+            </h1>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto font-medium">
+              Discover a world of flavors delivered to your doorstep.
+            </p>
+          </motion.div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-        {/* FILTER PANEL */}
-<aside className="w-full md:w-64 shrink-0 bg-white dark:bg-gray-900 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-  <h2 className="text-lg font-bold mb-4 text-gray-800 dark:text-white">
-    Filters
-  </h2>
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Enhanced Filter Sidebar */}
+          <aside className="lg:w-80 shrink-0">
+            <div className="sticky top-10 space-y-6">
+              <Card className="border-none shadow-xl shadow-gray-200/50 rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-sm border border-white/20">
+                <div className="p-6 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+                  <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-orange-600" />
+                    Filters
+                  </h2>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={resetFilters}
+                    className="rounded-full hover:bg-orange-50 hover:text-orange-600 transition-all"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </Button>
+                </div>
 
-  {/* Search */}
-  <div className="mb-4">
-    <input
-      type="text"
-      placeholder="Search meals..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-  </div>
+                <CardContent className="p-6 space-y-8">
+                  {/* Search */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Search</label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search for meals..."
+                        className="pl-10 h-12 rounded-xl border-gray-100 focus:border-orange-500 focus:ring-orange-500 transition-all bg-white"
+                      />
+                    </div>
+                  </div>
 
-  {/* Availability */}
-  <div className="mb-4">
-    <label className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-      <input
-        type="checkbox"
-        checked={isAvailable}
-        onChange={(e) => setIsAvailable(e.target.checked)}
-        className="accent-blue-500"
-      />
-      Available Only
-    </label>
-  </div>
+                  <Separator className="bg-gray-100/50" />
 
-  {/* Dietary Type */}
-  <div className="mb-4">
-    <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-      Dietary Type
-    </label>
-    <select
-      value={dietaryType}
-      onChange={(e) => setDietaryType(e.target.value)}
-      className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded px-3 py-2 focus:outline-none"
-    >
-      <option value="">All</option>
-      {dietaryOptions.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
-        </option>
-      ))}
-    </select>
-  </div>
+                  {/* Categories */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Category</label>
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      <button
+                        onClick={() => setCategoryId("")}
+                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                          categoryId === "" 
+                          ? "bg-orange-600 text-white shadow-lg shadow-orange-200" 
+                          : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                        <span className="text-sm font-bold">All Categories</span>
+                      </button>
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setCategoryId(cat.id)}
+                          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                            categoryId === cat.id 
+                            ? "bg-orange-600 text-white shadow-lg shadow-orange-200" 
+                            : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          <Utensils className="w-4 h-4" />
+                          <span className="text-sm font-bold">{cat.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-  {/* Category */}
-  <div className="mb-4">
-    <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-      Category
-    </label>
-    <select
-      value={categoryId}
-      onChange={(e) => setCategoryId(e.target.value)}
-      className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded px-3 py-2 focus:outline-none"
-    >
-      <option value="">All</option>
+                  <Separator className="bg-gray-100/50" />
 
-      {categories.map((cat) => (
-        <option key={cat.id} value={cat.id}>
-          {cat.name}
-        </option>
-      ))}
-    </select>
-  </div>
+                  {/* Dietary Type */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Dietary preference</label>
+                    <div className="grid grid-cols-1 gap-2">
+                      {dietaryOptions.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => setDietaryType(dietaryType === opt.value ? "" : opt.value)}
+                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                            dietaryType === opt.value 
+                            ? "bg-orange-50 border-orange-200 text-orange-700 font-bold" 
+                            : "bg-white border-gray-100 text-gray-500 hover:border-gray-200"
+                          }`}
+                        >
+                          <opt.icon className={`w-4 h-4 ${dietaryType === opt.value ? "text-orange-600" : "text-gray-400"}`} />
+                          <span className="text-sm">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-  {/* Price Range */}
-  <div className="mb-4">
-    <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-      Price Range: ${priceRange[0]} - ${priceRange[1]}
-    </label>
+                  <Separator className="bg-gray-100/50" />
 
-    <div className="flex gap-3">
-      {/* Min Price */}
-      <input
-        type="number"
-        placeholder="Min"
-        value={priceRange[0]}
-        onChange={(e) =>
-          setPriceRange([Number(e.target.value), priceRange[1]])
-        }
-        className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-2 w-1/2 rounded"
-      />
+                  {/* Price Range */}
+                  <div className="space-y-3">
+                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">
+                      Price Range (BDT)
+                    </label>
+                    <div className="flex gap-3">
+                      <Input
+                        type="number"
+                        value={priceRange[0]}
+                        onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                        className="h-10 rounded-xl bg-gray-50 border-none text-sm font-bold"
+                      />
+                      <Input
+                        type="number"
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                        className="h-10 rounded-xl bg-gray-50 border-none text-sm font-bold"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </aside>
 
-      {/* Max Price */}
-      <input
-        type="number"
-        placeholder="Max"
-        value={priceRange[1]}
-        onChange={(e) =>
-          setPriceRange([priceRange[0], Number(e.target.value)])
-        }
-        className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white p-2 w-1/2 rounded"
-      />
-    </div>
-  </div>
+          {/* Meals Grid */}
+          <main className="flex-1">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-2xl font-black text-gray-900">
+                {loading ? "Searching..." : `${meals.length} Meals Found`}
+              </h3>
+            </div>
 
-  {/* Reset Filters */}
-  <button
-    onClick={() => {
-      setSearch("");
-      setIsAvailable(false);
-      setDietaryType("");
-      setCategoryId("");
-      setPriceRange([0, 1000]);
-    }}
-    className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded transition"
-  >
-    Reset Filters
-  </button>
-</aside>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-[400px] bg-gray-100 rounded-[2rem] animate-pulse" />
+                ))}
+              </div>
+            ) : meals.length > 0 ? (
+              <>
+                <motion.div 
+                  layout
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                >
+                  <AnimatePresence mode="popLayout">
+                    {meals.map((meal) => (
+                      <motion.div
+                        key={meal.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <MealCard meal={meal} />
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
 
-        {/* MEAL LIST */}
-        <main className="flex-1">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {meals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} />
-            ))}
-          </div>
+                {/* Enhanced Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-3 mt-16">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={page === 1}
+                      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                      className="rounded-xl border-gray-200 hover:bg-orange-600 hover:text-white transition-all disabled:opacity-30"
+                    >
+                      <ChevronLeft size={20} />
+                    </Button>
 
-          {/* PAGINATION */}
-          <div className="flex justify-center items-center gap-2 mt-6">
-            <button
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              className="px-3 py-1 border rounded hover:bg-gray-100"
-            >
-              <ChevronLeft size={16} />
-            </button>
+                    <div className="flex gap-2">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                        <Button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className={`w-10 h-10 rounded-xl font-bold transition-all ${
+                            p === page 
+                            ? "bg-orange-600 text-white shadow-lg shadow-orange-200" 
+                            : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-100"
+                          }`}
+                        >
+                          {p}
+                        </Button>
+                      ))}
+                    </div>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`px-3 py-1 border rounded ${p === page ? "bg-red-500 text-white" : "hover:bg-gray-100"}`}
-              >
-                {p}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              className="px-3 py-1 border rounded hover:bg-gray-100"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </main>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={page === totalPages}
+                      onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                      className="rounded-xl border-gray-200 hover:bg-orange-600 hover:text-white transition-all disabled:opacity-30"
+                    >
+                      <ChevronRight size={20} />
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-20 bg-white rounded-[3rem] shadow-xl shadow-gray-100/50">
+                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Utensils className="w-10 h-10 text-gray-300" />
+                </div>
+                <h4 className="text-2xl font-black text-gray-900 mb-2">No meals found</h4>
+                <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+                  Try adjusting your filters or search terms.
+                </p>
+                <Button 
+                  onClick={resetFilters}
+                  className="rounded-full px-8 bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-200"
+                >
+                  Clear All Filters
+                </Button>
+              </div>
+            )}
+          </main>
+        </div>
       </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f1f1f1; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #e2e2e2; }
+      `}</style>
     </div>
+  );
+}
+
+export default function MealsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading meals...</div>}>
+      <MealsContent />
+    </Suspense>
   );
 }
