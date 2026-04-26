@@ -30,14 +30,14 @@ const formSchema = z.object({
   businessName: z.string().min(3, "The field is required!"),
   address: z.string().min(3, "The field is required!"),
   logoUrl: z.string(),
-  deliveryFee: z.coerce.number().min(0, "Delivery fee must be 0 or more"),
+  deliveryFee: z.number().min(0, "Delivery fee must be 0 or more"),
 });
 
 export function RestaurantForm2({ ...props }: React.ComponentProps<typeof Card>) {
   const GoogleLoginHandler = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:3000",
+      callbackURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
     });
     console.log(data);
   };
