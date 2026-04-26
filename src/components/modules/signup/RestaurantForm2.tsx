@@ -30,6 +30,7 @@ const formSchema = z.object({
   businessName: z.string().min(3, "The field is required!"),
   address: z.string().min(3, "The field is required!"),
   logoUrl: z.string(),
+  deliveryFee: z.coerce.number().min(0, "Delivery fee must be 0 or more"),
 });
 
 export function RestaurantForm2({ ...props }: React.ComponentProps<typeof Card>) {
@@ -50,6 +51,7 @@ const router = useRouter()
       businessName: "",
       address: "",
       logoUrl: "",
+      deliveryFee: 60,
     },
     validators: {
       onSubmit: formSchema,
@@ -232,6 +234,28 @@ const router = useRouter()
                       type="text"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="deliveryFee"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Delivery Fee (BDT)</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="number"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
                     />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />

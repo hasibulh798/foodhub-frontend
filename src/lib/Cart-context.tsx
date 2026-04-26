@@ -7,6 +7,8 @@ export interface CartItem {
   price: number;
   imageUrl?: string;
   quantity: number;
+  providerId: string;
+  deliveryFee: number;
 }
 
 interface CartContextType {
@@ -18,6 +20,7 @@ interface CartContextType {
   decreaseQty: (mealId: string) => void;
   count: number;
   totalPrice: number;
+  deliveryFee: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -48,6 +51,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((meal: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
+      // Check if adding from a different provider
+      if (prev.length > 0 && prev[0].providerId !== meal.providerId) {
+        // Option: Clear cart and add new item (Standard food app behavior)
+        return [{ ...meal, quantity: 1 }];
+      }
+
       const existing = prev.find((i) => i.mealId === meal.mealId);
       if (existing) {
         return prev.map((i) =>
@@ -81,8 +90,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         )
         .filter((i) => i.quantity > 0),
     ), []);
+    
   const count = items.reduce((acc, i) => acc + i.quantity, 0);
   const totalPrice = items.reduce((acc, i) => acc + i.quantity * i.price, 0);
+  const deliveryFee = items.length > 0 ? items[0].deliveryFee : 0;
 
   return (
     <CartContext.Provider
@@ -95,6 +106,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         decreaseQty,
         count,
         totalPrice,
+        deliveryFee,
       }}
     >
       {children}

@@ -23,6 +23,7 @@ import {
   BadgeCheck,
   AlertCircle,
   ChefHat,
+  Truck,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -48,6 +49,7 @@ export default function ProviderProfilePage() {
     businessName: "",
     address: "",
     logoUrl: "",
+    deliveryFee: 60,
   });
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export default function ProviderProfilePage() {
           businessName: profileData.value.businessName,
           address: profileData.value.address,
           logoUrl: profileData.value.logoUrl ?? "",
+          deliveryFee: Number(profileData.value.deliveryFee) || 60,
         });
       }
       if (ordersData.status === "fulfilled") {
@@ -87,6 +90,7 @@ export default function ProviderProfilePage() {
         businessName: form.businessName,
         address: form.address,
         logoUrl: form.logoUrl || undefined,
+        deliveryFee: Number(form.deliveryFee),
       });
       setProfile(updated);
       setEditing(false);
@@ -323,6 +327,11 @@ export default function ProviderProfilePage() {
                   value: "PROVIDER",
                   className: "text-orange-400",
                 },
+                {
+                  label: "Delivery Fee",
+                  value: `৳${profile?.deliveryFee || 60}`,
+                  className: "text-orange-400",
+                },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -492,6 +501,29 @@ export default function ProviderProfilePage() {
                   </div>
                 )}
               </div>
+
+            <div>
+              <label className="block text-xs text-gray-500 mb-1.5 font-medium">
+                Delivery Fee (BDT) *
+              </label>
+              <div className="relative group">
+                <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+                <input
+                  required
+                  type="number"
+                  disabled={!editing}
+                  value={form.deliveryFee}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, deliveryFee: Number(e.target.value) }))
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/60 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                  placeholder="60"
+                />
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1.5 ml-1">
+                This fee will be charged to customers for each order from your restaurant.
+              </p>
+            </div>
             </div>
 
             {editing && (
@@ -517,6 +549,7 @@ export default function ProviderProfilePage() {
                         businessName: profile.businessName,
                         address: profile.address,
                         logoUrl: profile.logoUrl ?? "",
+                        deliveryFee: Number(profile.deliveryFee) || 60,
                       });
                     }
                   }}

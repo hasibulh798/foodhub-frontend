@@ -21,7 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export default function CartPage() {
-  const { items, increaseQty, decreaseQty, removeItem, totalPrice } = useCart();
+  const { items, increaseQty, decreaseQty, removeItem, totalPrice, deliveryFee } = useCart();
   const router = useRouter();
 
   if (items.length === 0) {
@@ -173,13 +173,13 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-gray-500">
                       <span>Delivery Fee</span>
-                      <span className="text-gray-900 font-black">120 BDT</span>
+                      <span className="text-gray-900 font-black">{deliveryFee} BDT</span>
                     </div>
                     <Separator className="bg-gray-100" />
                     <div className="flex justify-between items-center pt-2">
                       <span className="text-lg font-black text-gray-900">Total Payable</span>
                       <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600">
-                        {totalPrice + 120} BDT
+                        {totalPrice + deliveryFee} BDT
                       </span>
                     </div>
                   </div>

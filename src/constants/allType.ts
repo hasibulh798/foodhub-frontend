@@ -46,6 +46,7 @@ export interface ProviderProfile {
   address: string;
   isVerified: boolean;
   logoUrl?: string;
+  deliveryFee: number | string;
   createdAt: string;
   updatedAt: string;
   user?: User;

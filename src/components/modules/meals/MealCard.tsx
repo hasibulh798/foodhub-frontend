@@ -23,6 +23,7 @@ interface MealCardProps {
   provider?: {
     id: string;
     businessName?: string;
+    deliveryFee?: number | string;
   };
 }
 
@@ -36,11 +37,22 @@ export default function MealCard({ provider, meal }: MealCardProps) {
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
+    // If provider is passed as prop, use it. Otherwise try to get it from meal.
+    const pId = provider?.id || (meal as any).providerId;
+    const dFee = Number(provider?.deliveryFee) || Number((meal as any).provider?.deliveryFee) || 60;
+
+    if (!pId) {
+      toast.error("Provider information missing");
+      return;
+    }
+
     addItem({
       mealId: meal.id,
       name: meal.name,
       price: Number(meal.price),
       imageUrl: meal.imageUrl ?? undefined,
+      providerId: pId,
+      deliveryFee: dFee,
     });
     if (quantity === 0) {
       toast.success(`${meal.name} added to selection`, {

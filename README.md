@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 Food Hub Frontend - Premium Culinary Experience
 
-## Getting Started
+A world-class, highly interactive food delivery frontend. Designed for speed, aesthetics, and a seamless user journey from discovery to delivery.
 
-First, run the development server:
+---
 
+## ✨ Features
+
+- **🚀 Next.js 15 App Router**: Leveraging the latest in server components and optimized routing.
+- **💎 Premium UI/UX**:
+  - **Framer Motion**: Smooth micro-animations and transitions.
+  - **Tailwind CSS**: A fully responsive, modern design system.
+  - **Glassmorphism**: Elegant, modern interfaces with depth and blur effects.
+- **🛒 Advanced Cart System**:
+  - **Persistence**: Cart survives page reloads via `localStorage`.
+  - **Single-Vendor Protection**: Intelligent cart clearing when switching restaurants.
+  - **Dynamic Fees**: Real-time delivery fee calculation based on the provider.
+- **🔐 Multi-Role Dashboards**:
+  - **Customer**: Track orders, manage profile, and view history.
+  - **Provider**: Professional interface for menu management and order processing.
+- **📱 Responsive Design**: Fully optimized for Mobile, Tablet, and Desktop.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Animation**: Framer Motion
+- **Icons**: Lucide React
+- **Form Handling**: React Hook Form & Zod
+- **Auth**: Better Auth (Client-side integration)
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Clone & Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-frontend-repo-url>
+cd frontend
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Configuration
+Create a `.env` file in the root directory:
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_BASE_URL=http://localhost:5000/api
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+AUTH_URL=http://localhost:5000/api/auth
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🚦 Main Routes
 
-To learn more about Next.js, take a look at the following resources:
+- **`/`**: Stunning home page with category filters.
+- **`/meals`**: Advanced meal discovery with interactive filters.
+- **`/restaurants/[id]`**: Deep-dive into specific restaurant menus.
+- **`/cart`**: Beautifully designed checkout preparation area.
+- **`/checkout`**: Secure finalization with payment selection.
+- **`/dashboard`**: Secure portal for orders and settings.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 License
+This project is licensed under the MIT License.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+**Crafted with ❤️ for Food Enthusiasts**

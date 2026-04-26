@@ -26,7 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function CheckoutPage() {
-  const { items: cartItems, clearCart } = useCart();
+  const { items: cartItems, clearCart, deliveryFee } = useCart();
   const router = useRouter();
 
   const [phone, setPhone] = useState("");
@@ -38,7 +38,6 @@ export default function CheckoutPage() {
     (total, item) => total + item.price * item.quantity,
     0
   );
-  const deliveryFee = 120;
   const totalPrice = subtotalPrice + deliveryFee;
 
   const handleOrder = async () => {
@@ -330,7 +329,7 @@ export default function CheckoutPage() {
                         <span className="text-gray-800">{subtotalPrice} BDT</span>
                       </div>
                       <div className="flex justify-between text-gray-500 font-medium">
-                        <span>Standard Delivery</span>
+                        <span>Delivery Fee</span>
                         <span className="text-gray-800">{deliveryFee} BDT</span>
                       </div>
                       <div className="flex justify-between items-center pt-6 mt-2 border-t border-gray-100">

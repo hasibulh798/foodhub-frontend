@@ -11,6 +11,7 @@ export default function PaymentSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tranId = searchParams.get("tran_id");
+  const orderId = searchParams.get("orderId");
   const { clearCart } = useCart();
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function PaymentSuccessPage() {
 
         <div className="space-y-4">
           <Link 
-            href="/customer/dashboard/orders" 
+            href={`/dashboard/orders/${orderId}`} 
             className="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
           >
             Track My Order
