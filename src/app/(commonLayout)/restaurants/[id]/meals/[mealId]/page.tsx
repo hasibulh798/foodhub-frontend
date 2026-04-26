@@ -1,42 +1,41 @@
 "use client";
 
+import { Review } from "@/constants/allType";
+import { useSession } from "@/lib/auth-client";
 import { useCart } from "@/lib/Cart-context";
 import { mealServices } from "@/services/meal.service";
-import { reviewServices } from "@/services/review.service";
 import { orderService } from "@/services/order.service";
-import { useSession } from "@/lib/auth-client";
-import Image from "next/image";
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Star, 
-  ShieldCheck, 
-  ChevronLeft, 
-  Plus, 
-  Minus, 
-  ShoppingBag,
-  Zap,
-  CheckCircle2,
-  Truck,
-  RotateCcw,
-  StarHalf,
-  Facebook,
-  Twitter,
-  Linkedin,
-  ArrowRight,
-  TrendingUp,
-  Package,
-  Utensils,
-  MessageSquare,
-  Send,
-  User,
-  Clock
+import { reviewServices } from "@/services/review.service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+    ArrowRight,
+    CheckCircle2,
+    ChevronLeft,
+    Clock,
+    Facebook,
+    Linkedin,
+    MessageSquare,
+    Minus,
+    Package,
+    Plus,
+    RotateCcw,
+    Send,
+    ShieldCheck,
+    ShoppingBag,
+    Star,
+    TrendingUp,
+    Truck,
+    Twitter,
+    User,
+    Utensils,
+    Zap
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Review } from "@/constants/allType";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function MealDetailsPage({
   params,
@@ -125,14 +124,18 @@ export default function MealDetailsPage({
   const handleAddToCart = (showToast = true) => {
     if (!meal) return;
     
-    for(let i = 0; i < quantity; i++) {
-        addItem({
-          mealId,
-          name: meal.name,
-          price: Number(meal.price),
-          imageUrl: meal.imageUrl,
-        });
-    }
+for(let i = 0; i < quantity; i++) {
+    addItem({
+      mealId,
+      name: meal.name,
+      price: Number(meal.price),
+      imageUrl: meal.imageUrl,
+      providerId: providerId,        // ← add করুন
+      deliveryFee: meal.provider?.deliveryFee 
+                    ? Number(meal.provider.deliveryFee) 
+                    : 60,            // ← add করুন (default 60)
+    });
+}
     
     if (showToast) {
         toast.success(`Selection updated! Added ${quantity} item(s)`);
