@@ -6,8 +6,7 @@ import Link from "next/link";
 import { Plus, Minus, Info, Utensils, Star, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 interface MealType {
   id: string;
   name: string;
@@ -30,6 +29,11 @@ interface MealCardProps {
 export default function MealCard({ provider, meal }: MealCardProps) {
   const { addItem, items, removeItem } = useCart();
   const [isLiked, setIsLiked] = useState(false);
+  const [isPopular, setIsPopular] = useState(false);
+
+  useEffect(() => {
+    setIsPopular(Math.random() > 0.7);
+  }, []);
   
   if (!meal) return null;
 
@@ -128,7 +132,7 @@ export default function MealCard({ provider, meal }: MealCardProps) {
         )}
 
         {/* Popular Badge Placeholder */}
-        {Math.random() > 0.7 && (
+        {isPopular && (
             <div className="absolute bottom-4 left-4 flex items-center gap-1 bg-amber-500 text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-lg">
                 <Star size={10} className="fill-current" />
                 Popular Choice
