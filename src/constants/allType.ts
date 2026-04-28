@@ -17,6 +17,7 @@ export type OrderStatus =
   | "CANCELLED";
 export type PaymentMethod = "COD" | "ONLINE";
 export type DietaryType = "VEG" | "NON_VEG" | "VEGAN";
+export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "CANCELLED";
 
 // ═══════════════════════════════════════════
 //  USER
@@ -109,6 +110,7 @@ export interface Order {
   subtotal: number | string;
   totalAmount: number | string;
   paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
   status: OrderStatus;
   deliveryAddress: string;
   deliveryFee: number | string;

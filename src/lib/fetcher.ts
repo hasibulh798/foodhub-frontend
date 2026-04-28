@@ -3,7 +3,7 @@ export async function fetcher(
   options?: RequestInit
 ) {
   const res = await fetch(url, {
-    credentials: "include", 
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },

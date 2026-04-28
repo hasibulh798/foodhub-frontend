@@ -1,6 +1,7 @@
 "use client";
 
 import { orderService } from "@/services/order.service";
+import { paymentService } from "@/services/payment.service";
 import { useEffect, useState } from "react";
 import type { Order } from "@/constants/allType";
 import { 
@@ -34,6 +35,7 @@ export default function CustomerOrdersPage() {
   const [filter, setFilter] = useState<string>("ALL");
   const [orderToCancel, setOrderToCancel] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isPaying, setIsPaying] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -63,6 +65,23 @@ export default function CustomerOrdersPage() {
       toast.error(error.message || "Failed to cancel order", { id: toastId });
     } finally {
       setIsCancelling(false);
+    }
+  };
+
+  const handlePayNow = async (orderId: string) => {
+    setIsPaying(orderId);
+    const toastId = toast.loading("Initiating payment...");
+    try {
+      const result = await paymentService.initiatePayment(orderId);
+      if (result.gatewayUrl) {
+        window.location.href = result.gatewayUrl;
+      } else {
+        throw new Error("Payment gateway unreachable");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to pay", { id: toastId });
+    } finally {
+      setIsPaying(null);
     }
   };
 
@@ -134,6 +153,9 @@ export default function CustomerOrdersPage() {
                     <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${STATUS_CONFIG[order.status]?.bg} ${STATUS_CONFIG[order.status]?.color}`}>
                       {order.status.replace(/_/g, " ")}
                     </div>
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${order.paymentStatus === "PAID" ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}>
+                      {order.paymentStatus === "PAID" ? "PAID" : "UNPAID"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -148,6 +170,15 @@ export default function CustomerOrdersPage() {
                     Details
                     <ChevronRight size={14} />
                   </Link>
+                  {order.paymentMethod === "ONLINE" && order.paymentStatus !== "PAID" && order.status !== "CANCELLED" && (
+                    <button 
+                      onClick={() => handlePayNow(order.id)}
+                      disabled={isPaying === order.id}
+                      className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-600/10 active:scale-95 disabled:opacity-50"
+                    >
+                      {isPaying === order.id ? "..." : "Pay Now"}
+                    </button>
+                  )}
                   {order.status === "PENDING" && (
                     <button 
                       onClick={() => setOrderToCancel(order.id)}

@@ -20,16 +20,16 @@ export default function PaymentFailPage() {
 
         <h1 className="text-3xl font-black mb-4 dark:text-white">Payment Failed</h1>
         <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed font-medium">
-          Something went wrong while processing your payment. Don't worry, no funds were deducted from your account.
+          Something went wrong while processing your payment. Don't worry, your order is safe. You can try paying again from your order history.
         </p>
 
         <div className="space-y-4">
           <Link 
-            href="/cart" 
+            href="/dashboard/orders" 
             className="w-full flex items-center justify-center gap-3 bg-red-600 hover:bg-red-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-red-600/20 active:scale-95"
           >
             <RefreshCcw size={16} />
-            Try Again
+            Try Again from Orders
           </Link>
           
           <Link 

@@ -1,6 +1,7 @@
 "use client";
 
 import { orderService } from "@/services/order.service";
+import { paymentService } from "@/services/payment.service";
 import { useEffect, useState } from "react";
 import type { Order } from "@/constants/allType";
 import { 
@@ -42,6 +43,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ orderId
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+  const [paying, setPaying] = useState(false);
   const router = useRouter();
 
   const fetchOrderDetails = async () => {
@@ -71,6 +73,23 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ orderId
       toast.error(error.message || "Failed to cancel order");
     } finally {
       setCancelling(false);
+    }
+  };
+
+  const handlePayNow = async () => {
+    setPaying(true);
+    const toastId = toast.loading("Preparing payment gateway...");
+    try {
+      const result = await paymentService.initiatePayment(orderId);
+      if (result.gatewayUrl) {
+        window.location.href = result.gatewayUrl;
+      } else {
+        throw new Error("No gateway URL returned");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to initiate payment", { id: toastId });
+    } finally {
+      setPaying(false);
     }
   };
 
@@ -314,6 +333,20 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ orderId
                   <span className="text-3xl font-black text-orange-500 tabular-nums tracking-tighter">৳{Number(order.totalAmount).toLocaleString()}</span>
                 </div>
              </div>
+
+             {order.paymentMethod === "ONLINE" && order.paymentStatus !== "PAID" && order.status !== "CANCELLED" && (
+                <button 
+                  onClick={handlePayNow}
+                  disabled={paying}
+                  className="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest mt-10 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-orange-600/20"
+                >
+                  {paying ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>Pay Now <CreditCard size={14} /></>
+                  )}
+                </button>
+             )}
              
              {order.status === "DELIVERED" && (
                 <button className="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest mt-10 hover:bg-gray-200 transition-all active:scale-95 flex items-center justify-center gap-2">

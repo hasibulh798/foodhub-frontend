@@ -301,8 +301,8 @@ function MealModal({
 
       onSave(mealData, isNew);
       toast.success(isNew ? "Meal added!" : "Meal updated!");
-    } catch {
-      toast.error("Save failed");
+    } catch (error: any) {
+      toast.error(error.message || "Save failed");
     } finally {
       setLoading(false);
     }

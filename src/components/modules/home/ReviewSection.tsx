@@ -61,10 +61,12 @@ export default function ReviewSection() {
     setMounted(true);
   }, []);
 
-  const { data: realReviews = [], isLoading } = useQuery({
+  const { data: rawReviews, isLoading } = useQuery({
     queryKey: ["public-reviews"],
     queryFn: () => reviewServices.getPublicReviews(),
   });
+
+  const realReviews = Array.isArray(rawReviews) ? rawReviews : [];
 
   // Ensure at least 5 reviews by combining real and static data
   const displayReviews = [...realReviews];

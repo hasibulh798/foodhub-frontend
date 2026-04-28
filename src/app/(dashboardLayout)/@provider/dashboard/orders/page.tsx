@@ -249,6 +249,15 @@ function OrderCard({
           >
             {order.paymentMethod}
           </span>
+          <span
+            className={`text-xs px-2 py-0.5 rounded border ${
+              order.paymentStatus === "PAID"
+                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+            }`}
+          >
+            {order.paymentStatus === "PAID" ? "Paid" : "Unpaid"}
+          </span>
         </div>
         <div className="text-right">
           <p className="text-orange-400 font-bold font-mono text-lg">

@@ -10,7 +10,7 @@ export const userService = {
         throw new Error("AUTH_URL is not defined");
       }
 
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
 
       const cookieHeader = cookieStore.toString();
 

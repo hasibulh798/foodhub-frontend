@@ -20,16 +20,16 @@ export default function PaymentCancelPage() {
 
         <h1 className="text-3xl font-black mb-4 dark:text-white">Payment Cancelled</h1>
         <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed font-medium">
-          You've cancelled the payment process. Your items are still in your cart if you'd like to try again or choose a different payment method.
+          You've cancelled the payment process. Don't worry, your order has been saved. You can try paying again anytime from your order history.
         </p>
 
         <div className="space-y-4">
           <Link 
-            href="/cart" 
+            href="/dashboard/orders" 
             className="w-full flex items-center justify-center gap-3 bg-amber-600 hover:bg-amber-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20 active:scale-95"
           >
             <ShoppingCart size={16} />
-            Go to Cart
+            View My Orders
           </Link>
           
           <Link 
