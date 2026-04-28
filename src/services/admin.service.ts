@@ -1,11 +1,16 @@
 import { UserStatus } from "@/constants/allType";
 import { fetcher } from "@/lib/fetcher";
+import { cookies } from "next/headers";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const adminService = {
   getAllUsers: async () => {
+    const cookieStore = cookies();
     const res = await fetcher(`${BASE_URL}/admin/users`, {
       cache: "no-store",
+      headers:{
+        cookie:cookieStore.toString()
+      }
     });
     if (!res.success) {
       throw new Error(res.message || "Failed to fetch users");

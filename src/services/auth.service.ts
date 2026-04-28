@@ -11,7 +11,7 @@ export const userService = {
 
       const cookieStore = cookies();
 
-      const cookieHeader = (await cookieStore).toString();
+      const cookieHeader = cookieStore.toString();
 
       const res = await fetch(`${AUTH_URL}/get-session`, {
         headers: { Cookie: cookieHeader },

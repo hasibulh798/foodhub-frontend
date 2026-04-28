@@ -46,9 +46,9 @@ npm install
 ### 2. Environment Configuration
 Create a `.env` file in the root directory:
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
 NEXT_PUBLIC_BASE_URL=http://localhost:5000/api
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_FRONTEND_URL=http://localhost:3000
 AUTH_URL=http://localhost:5000/api/auth
 ```
 

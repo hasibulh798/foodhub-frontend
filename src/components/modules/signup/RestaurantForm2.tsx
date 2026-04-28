@@ -37,7 +37,7 @@ export function RestaurantForm2({ ...props }: React.ComponentProps<typeof Card>)
   const GoogleLoginHandler = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
-      callbackURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      callbackURL: process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000",
     });
     console.log(data);
   };
