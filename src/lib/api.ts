@@ -15,7 +15,8 @@ import type {
   AdminStats,
 } from "../constants/allType";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api";
+// const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000/api";
+const BASE_URL = "/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
