@@ -41,6 +41,10 @@ export const userService = {
   getSession: async function () {
     try {
       const cookieStore = await cookies();
+      const sessionToken =
+        cookieStore.get("__Secure-session_token")?.value ||
+        cookieStore.get("session_token")?.value;
+      if (!sessionToken) return { data: null, error: "No session cookie" };
       const cookieHeader = cookieStore.toString();
 
       const res = await fetch(AUTH_SESSION_URL, {
