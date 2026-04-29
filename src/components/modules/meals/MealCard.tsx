@@ -29,11 +29,7 @@ interface MealCardProps {
 export default function MealCard({ provider, meal }: MealCardProps) {
   const { addItem, items, removeItem } = useCart();
   const [isLiked, setIsLiked] = useState(false);
-  const [isPopular, setIsPopular] = useState(false);
-
-  useEffect(() => {
-    setIsPopular(Math.random() > 0.7);
-  }, []);
+  const [isPopular] = useState(() => Math.random() > 0.7);
   
   if (!meal) return null;
 
