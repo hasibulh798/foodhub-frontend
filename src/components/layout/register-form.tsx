@@ -55,7 +55,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
         }
         toast.success("User registered successfully", { id: toastId });
       } catch (error) {
-        toast.error("SOmething went wrong.Please try again!", { id: toastId });
+        toast.error("Something went wrong.Please try again!", { id: toastId });
       }
     },
   });

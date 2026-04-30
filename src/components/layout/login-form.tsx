@@ -27,7 +27,7 @@ export function LoginForm() {
     try {
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: window.location.origin,
+        callbackURL: process.env.NEXT_PUBLIC_FRONTEND_URL,
       });
     } catch (err) {
       toast.error("Google login failed");
@@ -50,7 +50,7 @@ export function LoginForm() {
           toast.error(error.message, { id: toastId });
           return;
         }
-        toast.success("Welcome back!", { id: toastId });
+        toast.success("Sign in successful!", { id: toastId });
         router.push("/");
       } catch (error) {
         toast.error("Authentication failed. Please try again.", { id: toastId });
