@@ -12,18 +12,18 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${BACKEND_URL}/api/:path*`,
-      },
-      {
-        source: "/api/auth/:path*",
-        destination: `${BACKEND_URL}/api/auth/:path*`,
-      },
-    ];
-  },
+async rewrites() {
+  return [
+    {
+      source: "/api/auth/:path*",        // ✅ আগে specific route
+      destination: `${BACKEND_URL}/api/auth/:path*`,
+    },
+    {
+      source: "/api/:path*",             // এরপর general route
+      destination: `${BACKEND_URL}/api/:path*`,
+    },
+  ];
+},
 };
 
 export default nextConfig;
