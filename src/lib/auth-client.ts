@@ -1,8 +1,8 @@
 import { createAuthClient } from "better-auth/react";
-
+import { getSiteOrigin } from "./site-url";
 
 export const authClient = createAuthClient({
-  baseURL: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth`,
+  baseURL: `${getSiteOrigin()}/api/auth`,
   fetchOptions: {
     credentials: "include",
   },

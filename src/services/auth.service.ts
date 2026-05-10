@@ -31,11 +31,9 @@
 
 
 import { cookies } from "next/headers";
+import { getSiteOrigin } from "../lib/site-url";
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-
-const AUTH_SESSION_URL = `${BACKEND_URL}/api/auth/get-session`;
+const AUTH_SESSION_URL = `${getSiteOrigin()}/api/auth/get-session`;
 
 export const userService = {
   getSession: async function () {
