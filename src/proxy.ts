@@ -107,7 +107,7 @@ function startsWith(pathname: string, routes: string[]): boolean {
   return routes.some((r) => pathname === r || pathname.startsWith(r + "/"));
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const { data: session } = await userService.getSession();
@@ -127,7 +127,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-export default proxy;
+export default middleware;
 
 export const config = {
   matcher: [
