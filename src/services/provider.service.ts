@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetcher } from "@/lib/fetcher";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export const providerServices = {
   createProvider: async (data: any) => {
     try {
       console.log("FormData: ", data);
-      const res = await fetcher(`${BASE_URL}/providers`, {
+      const res = await fetcher(`/providers`, {
         method: "POST",
         cache: "no-store",
         body: JSON.stringify(data),
@@ -22,7 +21,7 @@ export const providerServices = {
   },
   getProviders: async (params: Record<string, any> = {}) => {
     const queryString = new URLSearchParams(params).toString();
-    const res = await fetcher(`${BASE_URL}/providers?${queryString}`, { cache: "no-store" });
+    const res = await fetcher(`/providers?${queryString}`, { cache: "no-store" });
 
     if (!res.success) {
       throw new Error("Failed to fetch providers");
@@ -32,7 +31,7 @@ export const providerServices = {
   },
 
   getSingleProvider: async (providerId: string) => {
-    const res = await fetcher(`${BASE_URL}/providers/${providerId}`, {
+    const res = await fetcher(`/providers/${providerId}`, {
       cache: "no-store",
     });
     if (!res.success) {
@@ -43,7 +42,7 @@ export const providerServices = {
   },
 
   getMyMeals: async () => {
-    const res = await fetcher(`${BASE_URL}/provider/my-meals`, {
+    const res = await fetcher(`/provider/my-meals`, {
       cache: "no-store",
     });
     if (!res.success) {
@@ -54,7 +53,7 @@ export const providerServices = {
   },    
 
   deleteMeal: async (mealId: string) => {
-    const res = await fetcher(`${BASE_URL}/provider/meals/${mealId}`, {
+    const res = await fetcher(`/provider/meals/${mealId}`, {
       cache: "no-store",
       method: "DELETE",
     });
@@ -65,7 +64,7 @@ export const providerServices = {
   },
 
   createMeal: async (data: any) => {
-    const res = await fetcher(`${BASE_URL}/provider/meals`, {
+    const res = await fetcher(`/provider/meals`, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -76,7 +75,7 @@ export const providerServices = {
   },
 
   updateMeal: async (mealId: string, data: any) => {
-    const res = await fetcher(`${BASE_URL}/provider/meals/${mealId}`, {
+    const res = await fetcher(`/provider/meals/${mealId}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
@@ -87,7 +86,7 @@ export const providerServices = {
   },
 
   toggleMealAvailability: async (mealId: string) => {
-    const res = await fetcher(`${BASE_URL}/provider/meals/${mealId}/toggle`, {
+    const res = await fetcher(`/provider/meals/${mealId}/toggle`, {
       method: "PATCH",
     });
     if (!res.success) {
@@ -97,7 +96,7 @@ export const providerServices = {
   },
 
   getMyProfile: async () => {
-    const res = await fetcher(`${BASE_URL}/providers/me`, {
+    const res = await fetcher('/providers/me', {
       cache: "no-store",
     });
     if (!res.success) {
@@ -107,7 +106,7 @@ export const providerServices = {
   },
 
   updateProfile: async (data: any) => {
-    const res = await fetcher(`${BASE_URL}/providers/me`, {
+    const res = await fetcher('/providers/me', {
       method: "PATCH",
       body: JSON.stringify(data),
     });

@@ -1,6 +1,5 @@
 import { PaymentMethod } from "@/constants/allType";
 import { fetcher } from "@/lib/fetcher";
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export type OrderTypes = {
   phone: string;
   paymentMethod: PaymentMethod;
@@ -9,7 +8,7 @@ export type OrderTypes = {
 };
 export const orderService = {
   createOrder: async (orderPayload: OrderTypes) => {
-    const res = await fetcher(`${BASE_URL}/orders`, {
+    const res = await fetcher('/orders', {
       cache: "no-store",
       method: "POST",
       body: JSON.stringify(orderPayload),
@@ -22,7 +21,7 @@ export const orderService = {
   },
 
   getMyOrders: async () => {
-    const res = await fetcher(`${BASE_URL}/orders`, {
+    const res = await fetcher('/orders', {
       cache: "no-store",
     });
     // Treat "no orders found" as an empty list, not an error
@@ -39,10 +38,10 @@ export const orderService = {
     }
     return Array.isArray(res.data) ? res.data : [];
   },
-  
+
 
   updateOrderStatus: async (orderId: string, status: string) => {
-    const res = await fetcher(`${BASE_URL}/provider/orders/${orderId}/status`, {
+    const res = await fetcher(`/provider/orders/${orderId}/status`, {
       cache: "no-store",
       method: "PATCH",
       body: JSON.stringify({ status }),
@@ -52,10 +51,10 @@ export const orderService = {
     }
 
     return res.data;
-  },  
+  },
 
   getProviderOrders: async () => {
-    const res = await fetcher(`${BASE_URL}/orders`, {
+    const res = await fetcher(`/orders`, {
       cache: "no-store",
     });
 
@@ -75,7 +74,7 @@ export const orderService = {
   },
 
   getSingleOrder: async (orderId: string) => {
-    const res = await fetcher(`${BASE_URL}/orders/${orderId}`, {
+    const res = await fetcher(`/orders/${orderId}`, {
       cache: "no-store",
     });
     if (!res.success) {
@@ -85,7 +84,7 @@ export const orderService = {
   },
 
   cancelOrder: async (orderId: string) => {
-    const res = await fetcher(`${BASE_URL}/orders/${orderId}/cancel`, {
+    const res = await fetcher(`/orders/${orderId}/cancel`, {
       method: "PATCH",
       cache: "no-store",
     });

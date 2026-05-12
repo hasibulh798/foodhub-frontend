@@ -7,7 +7,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 export const adminService = {
   getAllUsers: async () => {
-    const res = await fetcher(`${BASE_URL}/admin/users`, {
+    const res = await fetcher('/admin/users', {
       cache: "no-store",
       // headers: { cookieHeader },
     });
@@ -18,7 +18,7 @@ export const adminService = {
   },
 
   updateUserStatus: async (userId: string, status: UserStatus) => {
-    const res = await fetcher(`${BASE_URL}/admin/users/${userId}`, {
+    const res = await fetcher(`/admin/users/${userId}`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
     });
@@ -29,7 +29,7 @@ export const adminService = {
   },
 
   deleteUser: async (userId: string) => {
-    const res = await fetcher(`${BASE_URL}/admin/users/${userId}`, {
+    const res = await fetcher(`/admin/users/${userId}`, {
       method: "DELETE",
     });
     if (!res.success) {
@@ -39,7 +39,7 @@ export const adminService = {
   },
 
   verifyProvider: async (providerId: string, isVerified: boolean) => {
-    const res = await fetcher(`${BASE_URL}/admin/verify-provider/${providerId}`, {
+    const res = await fetcher(`/admin/verify-provider/${providerId}`, {
       method: "PATCH",
       body: JSON.stringify({ isVerified }),
     });
@@ -50,7 +50,7 @@ export const adminService = {
   },
 
   deleteProvider: async (providerId: string) => {
-    const res = await fetcher(`${BASE_URL}/admin/providers/${providerId}`, {
+    const res = await fetcher(`/admin/providers/${providerId}`, {
       method: "DELETE",
     });
     if (!res.success) {
@@ -60,7 +60,7 @@ export const adminService = {
   },
 
   getStats: async () => {
-    const res = await fetcher(`${BASE_URL}/admin/dashboard-stats`, {
+    const res = await fetcher(`/admin/dashboard-stats`, {
       cache: "no-store",
     });
     if (!res.success) {
@@ -70,7 +70,7 @@ export const adminService = {
   },
 
   verifyEmail: async (userId: string, isVerified: boolean) => {
-    const res = await fetcher(`${BASE_URL}/admin/verify-email/${userId}`, {
+    const res = await fetcher(`/admin/verify-email/${userId}`, {
       method: "PATCH",
       body: JSON.stringify({ isVerified }),
     });

@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { fetcher } from "@/lib/fetcher";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-
 export const reviewServices = {
   createReview: async (reviewData: { mealId: string; rating: number; comment: string }) => {
-    const res = await fetcher(`${BASE_URL}/reviews`, {
+    const res = await fetcher('/reviews', {
       method: "POST",
       body: JSON.stringify(reviewData),
     });
@@ -16,7 +14,7 @@ export const reviewServices = {
   },
 
   getAllReviews: async () => {
-    const res = await fetcher(`${BASE_URL}/reviews`, {
+    const res = await fetcher('/reviews', {
       cache: "no-store",
     });
     if (!res.success) {
@@ -26,7 +24,7 @@ export const reviewServices = {
   },
 
   getMealReviews: async (mealId: string) => {
-    const res = await fetcher(`${BASE_URL}/reviews/meal/${mealId}`, {
+    const res = await fetcher(`/reviews/meal/${mealId}`, {
       cache: "no-store",
     });
     if (!res.success) {
@@ -36,7 +34,7 @@ export const reviewServices = {
   },
 
   deleteReview: async (reviewId: string) => {
-    const res = await fetcher(`${BASE_URL}/reviews/${reviewId}`, {
+    const res = await fetcher(`/reviews/${reviewId}`, {
       method: "DELETE",
     });
     if (!res.success) {
@@ -46,7 +44,7 @@ export const reviewServices = {
   },
 
   getPublicReviews: async () => {
-    const res = await fetcher(`${BASE_URL}/reviews/public`, {
+    const res = await fetcher('/reviews/public', {
       cache: "no-store",
     });
     if (!res.success) {

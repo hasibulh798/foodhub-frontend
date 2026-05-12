@@ -1,11 +1,11 @@
 import { fetcher } from "@/lib/fetcher";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
 
 export const categoryServices = {
   getAllCategories: async () => {
     
-    const res = await fetcher(`${BASE_URL}/categories`, {
+    const res = await fetcher('/categories', {
       cache: "no-store",
     });
 
@@ -16,7 +16,7 @@ export const categoryServices = {
     return res.data;
   },
   getCategoriesByProvider:async(providerId:string)=>{
-    const res = await fetcher(`${BASE_URL}/categories/provider/${providerId}`, {
+    const res = await fetcher('/categories/provider/${providerId}', {
       cache: "no-store",
     })
     if (!res.success) {
@@ -26,7 +26,7 @@ export const categoryServices = {
   },
 
   createCategory: async (data: { name: string; iconUrl?: string }) => {
-    const res = await fetcher(`${BASE_URL}/categories`, {
+    const res = await fetcher('/categories', {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -37,7 +37,7 @@ export const categoryServices = {
   },
 
   updateCategory: async (catId: string, data: { name?: string; isActive?: boolean; iconUrl?: string }) => {
-    const res = await fetcher(`${BASE_URL}/categories/${catId}`, {
+    const res = await fetcher(`/categories/${catId}`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
@@ -48,7 +48,7 @@ export const categoryServices = {
   },
 
   deleteCategory: async (catId: string) => {
-    const res = await fetcher(`${BASE_URL}/categories/${catId}`, {
+    const res = await fetcher(`/categories/${catId}`, {
       method: "DELETE",
     });
     if (!res.success) {
