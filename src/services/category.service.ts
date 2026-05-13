@@ -16,7 +16,7 @@ export const categoryServices = {
     return res.data;
   },
   getCategoriesByProvider:async(providerId:string)=>{
-    const res = await fetcher('/categories/provider/${providerId}', {
+    const res = await fetcher(`/categories/provider/${providerId}`, {
       cache: "no-store",
     })
     if (!res.success) {
