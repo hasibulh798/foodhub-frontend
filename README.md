@@ -38,7 +38,7 @@ A world-class, highly interactive food delivery frontend. Designed for speed, ae
 
 ### 1. Clone & Install
 ```bash
-git clone <your-frontend-repo-url>
+git clone https://github.com/hasibulh798/foodhub-frontend
 cd frontend
 npm install
 ```
