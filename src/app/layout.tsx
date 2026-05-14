@@ -15,6 +15,7 @@ import { CartProvider } from "@/lib/Cart-context";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import QueryProvider from "@/providers/QueryProvider";
 import { Toaster } from "sonner";
+import AIChatbot from "@/components/modules/chatbot/AIChatbot";
 
 export const metadata: Metadata = {
   title: "Food Hub App",
@@ -33,6 +34,7 @@ export default async function RootLayout({
           <QueryProvider>
             <CartProvider>
               {children}
+              <AIChatbot />
               <Toaster richColors position="top-right" />
             </CartProvider>
           </QueryProvider>
