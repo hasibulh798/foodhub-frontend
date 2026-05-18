@@ -17,65 +17,78 @@ import {
   DollarSign,
   AlertCircle,
   ChefHat,
-  Eye,
   BarChart3,
   Calendar,
   MapPin,
   Star,
-  Loader2,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { DateRangeSelector, DateRangeType } from "@/components/modules/dashboard/DateRangeSelector";
+import { isWithinInterval, subDays, startOfDay, endOfDay } from "date-fns";
+import RevenueChart from "@/components/modules/dashboard/RevenueChart";
+import OrderStatusChart from "@/components/modules/dashboard/OrderStatusChart";
+import TopMealsChart from "@/components/modules/dashboard/TopMealsChart";
 
 /* ─── Status Config ─── */
 const STATUS_CONFIG: Record<
   string,
-  { color: string; bg: string; icon: typeof Clock; dot: string }
+  { color: string; bg: string; icon: any; dot: string }
 > = {
-  PENDING: {
-    color: "text-amber-400",
-    bg: "bg-amber-400/10",
-    icon: Clock,
-    dot: "bg-amber-400",
-  },
-  CONFIRMED: {
-    color: "text-blue-400",
-    bg: "bg-blue-400/10",
-    icon: CheckCircle2,
-    dot: "bg-blue-400",
-  },
-  PREPARING: {
-    color: "text-purple-400",
-    bg: "bg-purple-400/10",
-    icon: Package,
-    dot: "bg-purple-400",
-  },
-  OUT_FOR_DELIVERY: {
-    color: "text-orange-400",
-    bg: "bg-orange-400/10",
-    icon: TrendingUp,
-    dot: "bg-orange-400",
-  },
-  DELIVERED: {
-    color: "text-emerald-400",
-    bg: "bg-emerald-400/10",
-    icon: CheckCircle2,
-    dot: "bg-emerald-400",
-  },
-  CANCELLED: {
-    color: "text-rose-400",
-    bg: "bg-rose-400/10",
-    icon: XCircle,
-    dot: "bg-rose-400",
-  },
+  PENDING: { color: "text-amber-500", bg: "bg-amber-500/10", icon: Clock, dot: "bg-amber-500" },
+  CONFIRMED: { color: "text-blue-500", bg: "bg-blue-500/10", icon: CheckCircle2, dot: "bg-blue-500" },
+  PREPARING: { color: "text-purple-500", bg: "bg-purple-500/10", icon: Package, dot: "bg-purple-500" },
+  OUT_FOR_DELIVERY: { color: "text-orange-500", bg: "bg-orange-500/10", icon: TrendingUp, dot: "bg-orange-500" },
+  DELIVERED: { color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle2, dot: "bg-emerald-500" },
+  CANCELLED: { color: "text-rose-500", bg: "bg-rose-500/10", icon: XCircle, dot: "bg-rose-500" },
 };
+
+function ProviderDashboardSkeleton() {
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+        <div className="flex gap-2">
+          <Skeleton className="h-12 w-36 rounded-xl" />
+          <Skeleton className="h-12 w-36 rounded-xl" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Skeleton className="h-96 rounded-2xl" />
+        <Skeleton className="h-96 rounded-2xl" />
+      </div>
+      <Skeleton className="h-96 rounded-2xl" />
+    </div>
+  );
+}
 
 export default function ProviderDashboard() {
   const { data: session, isPending: sessionLoading } = useSession();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [profile, setProfile] = useState<ProviderProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [dateRange, setDateRange] = useState<DateRangeType>("7days");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,14 +100,10 @@ export default function ProviderDashboard() {
         ]);
 
         if (ordersData.status === "fulfilled") {
-          setOrders(
-            Array.isArray(ordersData.value) ? ordersData.value : []
-          );
+          setAllOrders(Array.isArray(ordersData.value) ? ordersData.value : []);
         }
         if (mealsData.status === "fulfilled") {
-          setMeals(
-            Array.isArray(mealsData.value) ? mealsData.value : []
-          );
+          setMeals(Array.isArray(mealsData.value) ? mealsData.value : []);
         }
         if (profileData.status === "fulfilled") {
           setProfile(profileData.value);
@@ -108,6 +117,23 @@ export default function ProviderDashboard() {
     fetchData();
   }, []);
 
+  /* ─── Filtering Logic ─── */
+  const orders = allOrders.filter((order) => {
+    if (dateRange === "all") return true;
+    
+    const orderDate = new Date(order.createdAt);
+    const now = new Date();
+    
+    let start;
+    if (dateRange === "today") start = startOfDay(now);
+    else if (dateRange === "7days") start = startOfDay(subDays(now, 7));
+    else if (dateRange === "30days") start = startOfDay(subDays(now, 30));
+    else if (dateRange === "90days") start = startOfDay(subDays(now, 90));
+    else return true;
+
+    return isWithinInterval(orderDate, { start, end: endOfDay(now) });
+  });
+
   /* ─── Computed Stats ─── */
   const totalRevenue = orders
     .filter((o) => o.status === "DELIVERED")
@@ -117,57 +143,35 @@ export default function ProviderDashboard() {
   const activeOrders = orders.filter(
     (o) => !["DELIVERED", "CANCELLED"].includes(o.status)
   ).length;
-  const deliveredOrders = orders.filter(
-    (o) => o.status === "DELIVERED"
-  ).length;
-  const cancelledOrders = orders.filter(
-    (o) => o.status === "CANCELLED"
-  ).length;
   const availableMeals = meals.filter((m) => m.isAvailable).length;
-  const unavailableMeals = meals.filter((m) => !m.isAvailable).length;
 
   if (sessionLoading || loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[80vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-orange-500/20" />
-          <p className="text-muted-foreground animate-pulse font-medium tracking-wide text-sm">
-            Loading your kitchen...
-          </p>
-        </div>
-      </div>
-    );
+    return <ProviderDashboardSkeleton />;
   }
 
   const user = session?.user;
 
   return (
-    <div className="p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8 max-w-7xl mx-auto">
-      {/* ═══════════════════════════════════════════
-          WELCOME HEADER
-      ═══════════════════════════════════════════ */}
+    <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-8">
+      {/* Welcome Header */}
       <motion.section
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6"
       >
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg shadow-orange-500/20">
-              <ChefHat size={22} className="text-white" />
+            <div className="p-3 bg-primary text-white rounded-2xl shadow-lg shadow-primary/20">
+              <ChefHat size={24} />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                Welcome back,{" "}
-                <span className="text-orange-500">
-                  {user?.name?.split(" ")[0]}
-                </span>
-                ! 🍳
+              <h1 className="text-3xl font-black tracking-tight text-foreground">
+                Chef <span className="text-primary">{user?.name?.split(" ")[0]}</span>'s Kitchen 🍳
               </h1>
-              <p className="text-sm text-muted-foreground font-medium">
-                {profile?.businessName || "Your Restaurant"}{" "}
+              <p className="text-muted-foreground font-medium flex items-center gap-2">
+                {profile?.businessName || "Your Restaurant"}
                 {profile?.isVerified && (
-                  <span className="inline-flex items-center gap-1 text-emerald-500 text-xs font-bold ml-1">
+                  <span className="flex items-center gap-1 text-emerald-500 text-xs font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">
                     <CheckCircle2 size={12} /> Verified
                   </span>
                 )}
@@ -176,32 +180,29 @@ export default function ProviderDashboard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/dashboard/menu"
-            className="group inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-5 md:px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-orange-500/15 active:scale-[0.97] text-sm"
-          >
-            <UtensilsCrossed size={16} />
-            Manage Menu
-            <ArrowRight
-              size={16}
-              className="group-hover:translate-x-0.5 transition-transform"
-            />
-          </Link>
-          <Link
-            href="/dashboard/orders"
-            className="inline-flex items-center gap-2 px-5 md:px-6 py-3 rounded-xl font-bold border border-border hover:bg-muted text-sm transition-all active:scale-[0.97]"
-          >
-            <Package size={16} />
-            All Orders
-          </Link>
+        <div className="flex items-center gap-3">
+          <DateRangeSelector 
+            currentRange={dateRange} 
+            onRangeChange={setDateRange} 
+          />
+          <Button variant="outline" className="rounded-xl font-bold" asChild>
+            <Link href="/dashboard/orders">
+              <Package size={16} className="mr-2" />
+              All Orders
+            </Link>
+          </Button>
+          <Button className="rounded-xl font-bold group" asChild>
+            <Link href="/dashboard/menu">
+              <UtensilsCrossed size={16} className="mr-2" />
+              Manage Menu
+              <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
         </div>
       </motion.section>
 
-      {/* ═══════════════════════════════════════════
-          STATS GRID
-      ═══════════════════════════════════════════ */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      {/* Stats Grid */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Total Revenue",
@@ -209,22 +210,22 @@ export default function ProviderDashboard() {
             icon: DollarSign,
             color: "text-emerald-500",
             bg: "bg-emerald-500/10",
-            trend: `${deliveredOrders} delivered`,
+            trend: "All-time earnings",
           },
           {
             label: "Total Orders",
             value: orders.length,
             icon: ShoppingCart,
-            color: "text-blue-500",
-            bg: "bg-blue-500/10",
-            trend: `${activeOrders} active`,
+            color: "text-primary",
+            bg: "bg-primary/10",
+            trend: `${activeOrders} in progress`,
           },
           {
-            label: "Menu Items",
+            label: "Active Menu",
             value: meals.length,
             icon: UtensilsCrossed,
-            color: "text-orange-500",
-            bg: "bg-orange-500/10",
+            color: "text-blue-500",
+            bg: "bg-blue-500/10",
             trend: `${availableMeals} available`,
           },
           {
@@ -233,413 +234,185 @@ export default function ProviderDashboard() {
             icon: AlertCircle,
             color: "text-amber-500",
             bg: "bg-amber-500/10",
-            trend: "Needs attention",
+            trend: "Action required",
           },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08 }}
-            className="group relative p-5 md:p-6 rounded-2xl bg-card border border-border hover:border-orange-500/20 hover:shadow-lg transition-all duration-300 overflow-hidden"
+            transition={{ delay: i * 0.1 }}
           >
-            <div className="absolute -right-3 -top-3 w-20 h-20 bg-gradient-to-br from-transparent to-orange-500/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-
-            <div className="relative">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-wider">
-                  {stat.label}
-                </p>
-                <div className={`p-2 rounded-xl ${stat.bg} ${stat.color}`}>
-                  <stat.icon size={16} />
+            <Card className="border-none shadow-sm hover:shadow-xl transition-all duration-300 group overflow-hidden bg-card/50 backdrop-blur-sm">
+              <CardContent className="p-6 relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} transition-colors`}>
+                    <stat.icon size={20} strokeWidth={2.5} />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">{stat.label}</p>
+                    <p className="text-2xl font-black mt-1 tabular-nums">{stat.value}</p>
+                  </div>
                 </div>
-              </div>
-              <p className="text-2xl md:text-3xl font-black tabular-nums leading-none">
-                {stat.value}
-              </p>
-              <p className="text-[10px] md:text-xs text-muted-foreground mt-2 font-medium">
-                {stat.trend}
-              </p>
-            </div>
+                <p className="text-[11px] font-semibold text-muted-foreground">{stat.trend}</p>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
       </section>
 
-      {/* ═══════════════════════════════════════════
-          ORDER STATUS BREAKDOWN + QUICK ACTIONS
-      ═══════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Order Status Breakdown */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="lg:col-span-2 bg-card border border-border rounded-2xl overflow-hidden"
-        >
-          <div className="px-5 md:px-6 py-4 border-b border-border flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-muted rounded-lg">
-                <BarChart3 size={16} className="text-orange-500" />
-              </div>
-              <h3 className="font-bold text-sm md:text-base">Order Breakdown</h3>
-            </div>
-            <Link
-              href="/dashboard/orders"
-              className="text-xs font-bold text-orange-500 hover:text-orange-400 transition-colors"
-            >
-              View All →
-            </Link>
-          </div>
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RevenueChart orders={orders} />
+        <OrderStatusChart orders={orders} />
+      </div>
 
-          <div className="p-5 md:p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {(
-                [
-                  "PENDING",
-                  "CONFIRMED",
-                  "PREPARING",
-                  "OUT_FOR_DELIVERY",
-                  "DELIVERED",
-                  "CANCELLED",
-                ] as const
-              ).map((status) => {
-                const config = STATUS_CONFIG[status];
-                const count = orders.filter(
-                  (o) => o.status === status
-                ).length;
-                const StatusIcon = config.icon;
-
-                return (
-                  <div
-                    key={status}
-                    className={`flex items-center gap-3 p-3.5 rounded-xl border border-border/50 ${config.bg} transition-all hover:scale-[1.02]`}
-                  >
-                    <div
-                      className={`p-2 rounded-lg bg-background/50 ${config.color}`}
-                    >
-                      <StatusIcon size={16} />
-                    </div>
-                    <div>
-                      <p className="text-xl font-black tabular-nums leading-none">
-                        {count}
-                      </p>
-                      <p className="text-[10px] font-semibold text-muted-foreground mt-0.5 capitalize">
-                        {status.replace(/_/g, " ").toLowerCase()}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-card border border-border rounded-2xl overflow-hidden"
-        >
-          <div className="px-5 md:px-6 py-4 border-b border-border">
-            <h3 className="font-bold text-sm md:text-base flex items-center gap-2">
-              <Star size={16} className="text-orange-500" />
-              Quick Actions
-            </h3>
-          </div>
-
-          <div className="p-4 space-y-2">
-            {[
-              {
-                title: "Add New Meal",
-                desc: "Create a new menu item",
-                icon: UtensilsCrossed,
-                href: "/dashboard/menu",
-                color: "text-orange-500 bg-orange-500/10",
-              },
-              {
-                title: "View Orders",
-                desc: "Manage incoming orders",
-                icon: Package,
-                href: "/dashboard/orders",
-                color: "text-blue-500 bg-blue-500/10",
-              },
-              {
-                title: "Edit Profile",
-                desc: "Update restaurant info",
-                icon: ChefHat,
-                href: "/dashboard/profile",
-                color: "text-emerald-500 bg-emerald-500/10",
-              },
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+           <TopMealsChart orders={orders} />
+        </div>
+        
+        {/* Quick Actions Card */}
+        <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/50 dark:bg-card/50 backdrop-blur-xl">
+          <CardHeader className="p-8 border-b border-border/30">
+            <CardTitle className="text-xl font-black flex items-center gap-2">
+              <Star size={20} className="text-primary" />
+              Quick Tasks
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 space-y-2">
+             {[
+              { title: "Add New Meal", desc: "Create a menu item", icon: UtensilsCrossed, href: "/dashboard/menu", color: "text-primary bg-primary/10" },
+              { title: "Active Orders", desc: "Check current tasks", icon: Package, href: "/dashboard/orders", color: "text-blue-500 bg-blue-500/10" },
+              { title: "Earnings", desc: "Detailed overview", icon: DollarSign, href: "/dashboard/analytics", color: "text-emerald-500 bg-emerald-500/10" },
+              { title: "Settings", desc: "Restaurant info", icon: ChefHat, href: "/dashboard/profile", color: "text-purple-500 bg-purple-500/10" },
             ].map((action) => (
               <Link
                 key={action.title}
                 href={action.href}
-                className="group flex items-center gap-3 p-3.5 rounded-xl hover:bg-muted transition-all"
+                className="group flex items-center gap-4 p-4 rounded-2xl hover:bg-muted transition-all"
               >
-                <div className={`p-2.5 rounded-xl ${action.color}`}>
-                  <action.icon size={16} />
+                <div className={`p-3 rounded-xl ${action.color} transition-transform group-hover:scale-110`}>
+                  <action.icon size={18} strokeWidth={2.5} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold group-hover:text-orange-500 transition-colors truncate">
-                    {action.title}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {action.desc}
-                  </p>
+                  <p className="text-sm font-bold group-hover:text-primary transition-colors">{action.title}</p>
+                  <p className="text-[11px] text-muted-foreground truncate font-medium">{action.desc}</p>
                 </div>
-                <ArrowRight
-                  size={14}
-                  className="text-muted-foreground group-hover:text-orange-500 group-hover:translate-x-0.5 transition-all flex-shrink-0"
-                />
+                <ChevronRight size={16} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
               </Link>
             ))}
-          </div>
-        </motion.div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* ═══════════════════════════════════════════
-          RECENT ORDERS TABLE
-      ═══════════════════════════════════════════ */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-card border border-border rounded-2xl overflow-hidden"
-      >
-        <div className="px-5 md:px-6 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Recent Orders Section */}
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/50 dark:bg-card/50 backdrop-blur-xl">
+        <CardHeader className="p-8 border-b border-border/30 flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-muted rounded-lg">
-              <Calendar size={16} className="text-orange-500" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm md:text-base">Recent Orders</h3>
-              <p className="text-[11px] text-muted-foreground">
-                Last {Math.min(orders.length, 5)} of {orders.length} total
-                orders
-              </p>
-            </div>
+             <div className="p-2 bg-primary/10 text-primary rounded-xl">
+                <Calendar size={20} />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-black">Incoming Orders</CardTitle>
+                <CardDescription className="font-medium">Live view of customer requests</CardDescription>
+              </div>
           </div>
-          <Link
-            href="/dashboard/orders"
-            className="text-xs font-bold text-orange-500 hover:text-orange-400 transition-colors"
-          >
-            View All Orders →
-          </Link>
-        </div>
-
+          <Button variant="outline" size="sm" className="rounded-xl font-bold" asChild>
+            <Link href="/dashboard/orders">Full Order Manager</Link>
+          </Button>
+        </CardHeader>
+        
         <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[640px]">
-            <thead>
-              <tr className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] font-bold border-b border-border">
-                <th className="px-5 md:px-6 py-3.5">Order ID</th>
-                <th className="px-5 md:px-6 py-3.5">Customer</th>
-                <th className="px-5 md:px-6 py-3.5">Items</th>
-                <th className="px-5 md:px-6 py-3.5">Status</th>
-                <th className="px-5 md:px-6 py-3.5">Amount</th>
-                <th className="px-5 md:px-6 py-3.5 text-right">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {orders.slice(0, 5).map((order) => {
+          <Table>
+            <TableHeader className="bg-muted/10">
+              <TableRow className="border-b border-border/30">
+                <TableHead className="px-8 py-5 text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Order Reference</TableHead>
+                <TableHead className="px-8 py-5 text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Customer</TableHead>
+                <TableHead className="px-8 py-5 text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Status</TableHead>
+                <TableHead className="px-8 py-5 text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Revenue</TableHead>
+                <TableHead className="px-8 py-5 text-right text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black">Placed On</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-border/30">
+              {orders.slice((currentPage - 1) * 5, currentPage * 5).map((order) => {
                 const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.PENDING;
-                const StatusIcon = config.icon;
                 return (
-                  <tr
-                    key={order.id}
-                    className="group hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="px-5 md:px-6 py-4">
-                      <span className="text-xs font-mono font-bold text-muted-foreground group-hover:text-foreground transition-colors">
-                        #{order.id.slice(-8).toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-5 md:px-6 py-4">
-                      <div>
-                        <p className="text-sm font-semibold">
-                          {order.customer?.name || "—"}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                  <TableRow key={order.id} className="group hover:bg-primary/[0.02] transition-all border-border/30">
+                    <TableCell className="px-8 py-6">
+                      <span className="text-xs font-mono font-bold text-muted-foreground group-hover:text-foreground transition-colors uppercase">#{order.id.slice(-8)}</span>
+                    </TableCell>
+                    <TableCell className="px-8 py-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{order.customer?.name || "Customer"}</span>
+                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                           <MapPin size={10} />
-                          {order.deliveryAddress?.slice(0, 25)}
-                          {(order.deliveryAddress?.length || 0) > 25
-                            ? "..."
-                            : ""}
-                        </p>
+                          <span className="truncate max-w-[200px]">{order.deliveryAddress}</span>
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-5 md:px-6 py-4">
-                      <span className="text-xs font-bold text-muted-foreground">
-                        {order.orderItems?.length || 0} items
-                      </span>
-                    </td>
-                    <td className="px-5 md:px-6 py-4">
-                      <div
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase ${config.bg} ${config.color} border border-transparent`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${config.dot}`}
-                        />
+                    </TableCell>
+                    <TableCell className="px-8 py-6">
+                      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase ${config.bg} ${config.color} border border-current/10`}>
+                        <config.icon size={12} strokeWidth={3} />
                         {order.status.replace(/_/g, " ")}
                       </div>
-                    </td>
-                    <td className="px-5 md:px-6 py-4">
-                      <span className="text-sm font-black tabular-nums">
-                        ৳{Number(order.totalAmount).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="px-8 py-6">
+                      <span className="text-sm font-black text-foreground tabular-nums">৳{Number(order.totalAmount).toLocaleString()}</span>
+                    </TableCell>
+                    <TableCell className="px-8 py-6 text-right">
+                      <span className="text-xs font-bold text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleDateString("en-BD", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                       </span>
-                    </td>
-                    <td className="px-5 md:px-6 py-4 text-right">
-                      <span className="text-xs font-semibold text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleDateString("en-BD", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </span>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-
               {orders.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-24 text-center">
-                    <motion.div
-                      className="flex flex-col items-center gap-4 opacity-50"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 0.5 }}
-                    >
-                      <div className="p-6 bg-muted rounded-2xl">
-                        <ShoppingCart size={48} strokeWidth={1.5} />
+                 <TableRow>
+                  <TableCell colSpan={5} className="px-8 py-32 text-center">
+                    <div className="flex flex-col items-center gap-4 opacity-50">
+                      <div className="p-8 bg-muted rounded-[2.5rem]">
+                        <Package size={80} strokeWidth={1} />
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-lg font-bold">No orders yet</p>
-                        <p className="text-sm text-muted-foreground">
-                          Orders will appear here once customers start ordering!
-                        </p>
-                      </div>
-                    </motion.div>
-                  </td>
-                </tr>
+                      <p className="text-xl font-black">No orders yet</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
-      </motion.section>
-
-      {/* ═══════════════════════════════════════════
-          MENU OVERVIEW
-      ═══════════════════════════════════════════ */}
-      <motion.section
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-card border border-border rounded-2xl overflow-hidden"
-      >
-        <div className="px-5 md:px-6 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-muted rounded-lg">
-              <UtensilsCrossed size={16} className="text-orange-500" />
-            </div>
-            <div>
-              <h3 className="font-bold text-sm md:text-base">Menu Overview</h3>
-              <p className="text-[11px] text-muted-foreground">
-                {availableMeals} available • {unavailableMeals} unavailable
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/dashboard/menu"
-            className="text-xs font-bold text-orange-500 hover:text-orange-400 transition-colors"
-          >
-            Manage Menu →
-          </Link>
-        </div>
-
-        {meals.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 md:p-6">
-            {meals.slice(0, 6).map((meal) => (
-              <div
-                key={meal.id}
-                className="group flex items-center gap-3 p-3 rounded-xl border border-border/50 hover:border-border hover:bg-muted/30 transition-all"
+        
+        {/* Simple Pagination for Dashboard Summary */}
+        {orders.length > 5 && (
+          <div className="p-6 border-t border-border/30 flex justify-between items-center bg-muted/5">
+            <p className="text-xs font-bold text-muted-foreground">
+              Showing page {currentPage} of {Math.ceil(orders.length / 5)}
+            </p>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+                className="rounded-lg font-bold"
               >
-                <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                  {meal.imageUrl ? (
-                    <img
-                      src={meal.imageUrl}
-                      alt={meal.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <UtensilsCrossed
-                        size={20}
-                        className="text-muted-foreground"
-                      />
-                    </div>
-                  )}
-                  {!meal.isAvailable && (
-                    <div className="absolute inset-0 bg-background/70 flex items-center justify-center">
-                      <span className="text-[8px] font-bold text-muted-foreground uppercase">
-                        Off
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate group-hover:text-orange-500 transition-colors">
-                    {meal.name}
-                  </p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs font-bold text-orange-500 tabular-nums">
-                      ৳{Number(meal.price).toLocaleString()}
-                    </span>
-                    <span
-                      className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
-                        meal.isAvailable
-                          ? "bg-emerald-500/10 text-emerald-500"
-                          : "bg-rose-500/10 text-rose-500"
-                      }`}
-                    >
-                      {meal.isAvailable ? "Available" : "Unavailable"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-12 text-center">
-            <div className="flex flex-col items-center gap-3 opacity-50">
-              <UtensilsCrossed size={40} strokeWidth={1.5} />
-              <div>
-                <p className="font-bold">No menu items yet</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Start by adding your first meal!
-                </p>
-              </div>
-              <Link
-                href="/dashboard/menu"
-                className="mt-2 inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors"
+                Prev
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={currentPage >= Math.ceil(orders.length / 5)}
+                onClick={() => setCurrentPage(p => p + 1)}
+                className="rounded-lg font-bold"
               >
-                Add Your First Meal
-                <ArrowRight size={14} />
-              </Link>
+                Next
+              </Button>
             </div>
           </div>
         )}
-
-        {meals.length > 6 && (
-          <div className="px-6 pb-4 text-center">
-            <Link
-              href="/dashboard/menu"
-              className="text-xs font-bold text-muted-foreground hover:text-orange-500 transition-colors"
-            >
-              + {meals.length - 6} more items in your menu
-            </Link>
-          </div>
-        )}
-      </motion.section>
+      </Card>
     </div>
   );
 }

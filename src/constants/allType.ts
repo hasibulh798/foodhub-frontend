@@ -76,9 +76,9 @@ export interface Meal {
   categoryId: string;
   name: string;
   description: string;
-  price: number | string; // Prisma Decimal → string হয়ে আসে
+  price: number | string; 
   isAvailable: boolean;
-  imageUrl?: string;
+  images: string[];
   cuisine?: string;
   dietaryType?: DietaryType;
   createdAt: string;
@@ -174,7 +174,7 @@ export interface CreateMealInput {
   price: number;
   categoryId: string;
   isAvailable?: boolean;
-  imageUrl?: string;
+  images?: string[];
   cuisine?: string;
   dietaryType?: DietaryType;
 }

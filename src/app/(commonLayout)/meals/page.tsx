@@ -13,15 +13,17 @@ import {
   Leaf,
   Beef,
   Flame,
-  LayoutGrid
+  LayoutGrid,
+  ChevronDown
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Meal {
   id: string;
@@ -44,6 +46,20 @@ const dietaryOptions = [
   { value: "VEGAN", label: "Vegan", icon: Flame },
 ];
 
+function MealsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div key={i} className="space-y-4">
+          <Skeleton className="h-64 rounded-[2.5rem]" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function MealsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,28 +71,20 @@ function MealsContent() {
   const [search, setSearch] = useState(urlSearch);
   const [isAvailable, setIsAvailable] = useState(true);
   const [dietaryType, setDietaryType] = useState<string>("");
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryId, setCategoryId] = useState<string>(urlCategoryId);
   const [loading, setLoading] = useState(true);
 
-  // Sync with URL params when they change
+  // Sync with URL params
   useEffect(() => {
-    if (urlCategoryId) {
-      setCategoryId(urlCategoryId);
-    } else {
-      setCategoryId("");
-    }
+    setCategoryId(urlCategoryId);
   }, [urlCategoryId]);
 
   useEffect(() => {
-    if (urlSearch) {
-      setSearch(urlSearch);
-    } else {
-      setSearch("");
-    }
+    setSearch(urlSearch);
   }, [urlSearch]);
 
   // Fetch categories
@@ -131,147 +139,166 @@ function MealsContent() {
     setIsAvailable(true);
     setDietaryType("");
     setCategoryId("");
-    setPriceRange([0, 2000]);
+    setPriceRange([0, 5000]);
     setPage(1);
     router.push("/meals");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
+    <div className="min-h-screen bg-background">
       {/* Premium Hero Section */}
-      <section className="relative h-[300px] flex items-center justify-center overflow-hidden bg-zinc-900">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 to-red-600/20 z-10" />
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-40 scale-105" />
+      <section className="relative h-[400px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background z-10" />
+        <motion.div 
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-60" 
+        />
         
-        <div className="relative z-20 text-center px-6">
+        <div className="relative z-20 text-center px-6 max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
-              Delicious <span className="text-orange-500">Meals</span>
+            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tight leading-tight">
+              Curated <span className="text-primary text-gradient">Culinary</span> Experiences
             </h1>
-            <p className="text-gray-300 text-lg max-w-2xl mx-auto font-medium">
-              Discover a world of flavors delivered to your doorstep.
+            <p className="text-white/80 text-xl font-medium max-w-2xl mx-auto backdrop-blur-sm bg-white/5 py-2 px-4 rounded-full border border-white/10">
+              Discover local chefs and premium flavors delivered instantly.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row gap-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
+        <div className="flex flex-col lg:flex-row gap-12">
           {/* Enhanced Filter Sidebar */}
           <aside className="lg:w-80 shrink-0">
-            <div className="sticky top-10 space-y-6">
-              <Card className="border-none shadow-xl shadow-gray-200/50 rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-sm border border-white/20">
-                <div className="p-6 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
-                  <h2 className="text-xl font-black text-gray-900 flex items-center gap-2">
-                    <Filter className="w-5 h-5 text-orange-600" />
-                    Filters
-                  </h2>
+            <div className="sticky top-24 space-y-6">
+              <Card className="border-none shadow-premium rounded-[2.5rem] overflow-hidden bg-card/30 backdrop-blur-xl border border-border/50">
+                <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-2xl font-black flex items-center gap-3">
+                      <Filter className="w-5 h-5 text-primary" />
+                      Filters
+                    </CardTitle>
+                  </div>
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     onClick={resetFilters}
-                    className="rounded-full hover:bg-orange-50 hover:text-orange-600 transition-all"
+                    className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
                   >
                     <RotateCcw className="w-4 h-4" />
                   </Button>
-                </div>
+                </CardHeader>
 
-                <CardContent className="p-6 space-y-8">
+                <CardContent className="p-8 space-y-10">
                   {/* Search */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Search</label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">Search</label>
+                    <div className="relative group">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search for meals..."
-                        className="pl-10 h-12 rounded-xl border-gray-100 focus:border-orange-500 focus:ring-orange-500 transition-all bg-white"
+                        placeholder="Search for delights..."
+                        className="pl-12 h-14 rounded-2xl bg-muted/50 border-border/50 focus:bg-background transition-all"
                       />
                     </div>
                   </div>
 
-                  <Separator className="bg-gray-100/50" />
+                  <Separator className="opacity-50" />
 
                   {/* Categories */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Category</label>
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">Category</label>
+                    <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                       <button
                         onClick={() => setCategoryId("")}
-                        className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                        className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${
                           categoryId === "" 
-                          ? "bg-orange-600 text-white shadow-lg shadow-orange-200" 
-                          : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                          ? "bg-primary text-white shadow-xl shadow-primary/20" 
+                          : "bg-muted/50 text-foreground hover:bg-muted font-bold"
                         }`}
                       >
-                        <LayoutGrid className="w-4 h-4" />
-                        <span className="text-sm font-bold">All Categories</span>
+                        <div className="flex items-center gap-3">
+                            <LayoutGrid size={18} />
+                            <span className="text-sm">All Delights</span>
+                        </div>
+                        {categoryId === "" && <ChevronRight size={14} />}
                       </button>
                       {categories.map((cat) => (
                         <button
                           key={cat.id}
                           onClick={() => setCategoryId(cat.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                          className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${
                             categoryId === cat.id 
-                            ? "bg-orange-600 text-white shadow-lg shadow-orange-200" 
-                            : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                            ? "bg-primary text-white shadow-xl shadow-primary/20" 
+                            : "bg-muted/50 text-foreground hover:bg-muted font-bold"
                           }`}
                         >
-                          <Utensils className="w-4 h-4" />
-                          <span className="text-sm font-bold">{cat.name}</span>
+                          <div className="flex items-center gap-3">
+                            <Utensils size={18} />
+                            <span className="text-sm">{cat.name}</span>
+                          </div>
+                          {categoryId === cat.id && <ChevronRight size={14} />}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <Separator className="bg-gray-100/50" />
+                  <Separator className="opacity-50" />
 
                   {/* Dietary Type */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Dietary preference</label>
-                    <div className="grid grid-cols-1 gap-2">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">Dietary</label>
+                    <div className="grid grid-cols-1 gap-3">
                       {dietaryOptions.map((opt) => (
                         <button
                           key={opt.value}
                           onClick={() => setDietaryType(dietaryType === opt.value ? "" : opt.value)}
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                          className={`flex items-center gap-3 p-4 rounded-2xl border transition-all duration-300 ${
                             dietaryType === opt.value 
-                            ? "bg-orange-50 border-orange-200 text-orange-700 font-bold" 
-                            : "bg-white border-gray-100 text-gray-500 hover:border-gray-200"
+                            ? "bg-primary/10 border-primary/30 text-primary font-black" 
+                            : "bg-muted/30 border-transparent text-muted-foreground hover:border-border"
                           }`}
                         >
-                          <opt.icon className={`w-4 h-4 ${dietaryType === opt.value ? "text-orange-600" : "text-gray-400"}`} />
+                          <opt.icon className={`w-4 h-4 ${dietaryType === opt.value ? "text-primary" : ""}`} />
                           <span className="text-sm">{opt.label}</span>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <Separator className="bg-gray-100/50" />
+                  <Separator className="opacity-50" />
 
                   {/* Price Range */}
-                  <div className="space-y-3">
-                    <label className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">
-                      Price Range (BDT)
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                      Price Range (৳)
                     </label>
                     <div className="flex gap-3">
-                      <Input
-                        type="number"
-                        value={priceRange[0]}
-                        onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                        className="h-10 rounded-xl bg-gray-50 border-none text-sm font-bold"
-                      />
-                      <Input
-                        type="number"
-                        value={priceRange[1]}
-                        onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                        className="h-10 rounded-xl bg-gray-50 border-none text-sm font-bold"
-                      />
+                      <div className="relative flex-1">
+                        <Input
+                          type="number"
+                          value={priceRange[0]}
+                          onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                          className="h-12 rounded-xl bg-muted/50 border-none text-xs font-black pl-8"
+                        />
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-[10px] font-bold">Min</span>
+                      </div>
+                      <div className="relative flex-1">
+                        <Input
+                          type="number"
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                          className="h-12 rounded-xl bg-muted/50 border-none text-xs font-black pl-8"
+                        />
+                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-[10px] font-bold">Max</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -281,18 +308,22 @@ function MealsContent() {
 
           {/* Meals Grid */}
           <main className="flex-1">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-black text-gray-900">
-                {loading ? "Searching..." : `${meals.length} Meals Found`}
-              </h3>
+            <div className="flex items-center justify-between mb-10">
+              <div className="space-y-1">
+                <h3 className="text-3xl font-black text-foreground">
+                  {loading ? "Searching delights..." : "Discover Menu"}
+                </h3>
+                {!loading && (
+                   <p className="text-muted-foreground font-medium">{meals.length} exquisite dishes found</p>
+                )}
+              </div>
+              <div className="hidden md:block">
+                 {/* Sort could go here */}
+              </div>
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-[400px] bg-gray-100 rounded-[2rem] animate-pulse" />
-                ))}
-              </div>
+              <MealsSkeleton />
             ) : meals.length > 0 ? (
               <>
                 <motion.div 
@@ -303,9 +334,9 @@ function MealsContent() {
                     {meals.map((meal) => (
                       <motion.div
                         key={meal.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3 }}
                       >
                         <MealCard meal={meal} />
@@ -316,13 +347,13 @@ function MealsContent() {
 
                 {/* Enhanced Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-3 mt-16">
+                  <div className="flex justify-center items-center gap-4 mt-20">
                     <Button
                       variant="outline"
                       size="icon"
                       disabled={page === 1}
                       onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                      className="rounded-xl border-gray-200 hover:bg-orange-600 hover:text-white transition-all disabled:opacity-30"
+                      className="rounded-2xl h-12 w-12 transition-all disabled:opacity-20"
                     >
                       <ChevronLeft size={20} />
                     </Button>
@@ -332,10 +363,10 @@ function MealsContent() {
                         <Button
                           key={p}
                           onClick={() => setPage(p)}
-                          className={`w-10 h-10 rounded-xl font-bold transition-all ${
+                          className={`w-12 h-12 rounded-2xl font-black transition-all ${
                             p === page 
-                            ? "bg-orange-600 text-white shadow-lg shadow-orange-200" 
-                            : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-100"
+                            ? "bg-primary text-white shadow-xl shadow-primary/30" 
+                            : "bg-muted/50 text-foreground hover:bg-muted border-none"
                           }`}
                         >
                           {p}
@@ -348,7 +379,7 @@ function MealsContent() {
                       size="icon"
                       disabled={page === totalPages}
                       onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-                      className="rounded-xl border-gray-200 hover:bg-orange-600 hover:text-white transition-all disabled:opacity-30"
+                      className="rounded-2xl h-12 w-12 transition-all disabled:opacity-20"
                     >
                       <ChevronRight size={20} />
                     </Button>
@@ -356,31 +387,35 @@ function MealsContent() {
                 )}
               </>
             ) : (
-              <div className="text-center py-20 bg-white rounded-[3rem] shadow-xl shadow-gray-100/50">
-                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Utensils className="w-10 h-10 text-gray-300" />
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-32 bg-muted/20 rounded-[3rem] border-2 border-dashed border-border"
+              >
+                <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-8 text-muted-foreground/30">
+                  <Utensils size={48} strokeWidth={1} />
                 </div>
-                <h4 className="text-2xl font-black text-gray-900 mb-2">No meals found</h4>
-                <p className="text-gray-500 mb-8 max-w-sm mx-auto">
-                  Try adjusting your filters or search terms.
+                <h4 className="text-3xl font-black text-foreground mb-3">No matching delights</h4>
+                <p className="text-muted-foreground mb-10 max-w-sm mx-auto font-medium">
+                  We couldn't find anything matching your filters. Try something broader?
                 </p>
                 <Button 
                   onClick={resetFilters}
-                  className="rounded-full px-8 bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-200"
+                  className="rounded-full px-10 h-14 font-black text-lg shadow-xl shadow-primary/20"
                 >
-                  Clear All Filters
+                  Reset All Filters
                 </Button>
-              </div>
+              </motion.div>
             )}
           </main>
         </div>
       </div>
 
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f1f1f1; border-radius: 20px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #e2e2e2; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: hsl(var(--muted)); border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.3); }
       `}</style>
     </div>
   );
@@ -388,7 +423,7 @@ function MealsContent() {
 
 export default function MealsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading meals...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-black animate-pulse">Preheating...</div>}>
       <MealsContent />
     </Suspense>
   );

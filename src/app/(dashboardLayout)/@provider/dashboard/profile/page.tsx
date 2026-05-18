@@ -5,7 +5,7 @@ import { providerServices } from "@/services/provider.service";
 import { orderService } from "@/services/order.service";
 import { useEffect, useState } from "react";
 import type { ProviderProfile, Order } from "@/constants/allType";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import {
   Building2,
   MapPin,
@@ -24,16 +24,30 @@ import {
   AlertCircle,
   ChefHat,
   Truck,
+  ShieldCheck,
+  ChevronRight,
+  Loader2,
+  Banknote,
+  User,
+  Store
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING: "text-amber-400 bg-amber-400/10",
-  CONFIRMED: "text-blue-400 bg-blue-400/10",
-  PREPARING: "text-purple-400 bg-purple-400/10",
-  OUT_FOR_DELIVERY: "text-orange-400 bg-orange-400/10",
-  DELIVERED: "text-emerald-400 bg-emerald-400/10",
-  CANCELLED: "text-rose-400 bg-rose-400/10",
+const STATUS_CONFIG: Record<string, { variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning"; label: string }> = {
+  PENDING: { variant: "warning", label: "Pending" },
+  CONFIRMED: { variant: "default", label: "Confirmed" },
+  PREPARING: { variant: "secondary", label: "Preparing" },
+  OUT_FOR_DELIVERY: { variant: "warning", label: "On the Way" },
+  DELIVERED: { variant: "success", label: "Delivered" },
+  CANCELLED: { variant: "destructive", label: "Cancelled" },
 };
 
 export default function ProviderProfilePage() {
@@ -76,7 +90,7 @@ export default function ProviderProfilePage() {
         setOrders(ordersData.value || []);
       }
     } catch {
-      toast.error("Failed to load profile");
+      toast.error("Failed to load profile intelligence");
     } finally {
       setLoading(false);
     }
@@ -84,6 +98,7 @@ export default function ProviderProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const toastId = toast.loading("Updating your brand identity...");
     setSaving(true);
     try {
       const updated = await providerServices.updateProfile({
@@ -94,31 +109,27 @@ export default function ProviderProfilePage() {
       });
       setProfile(updated);
       setEditing(false);
-      toast.success("Profile updated successfully!");
+      toast.success("Brand updated successfully!", { id: toastId });
     } catch {
-      toast.error("Update failed. Please try again.");
+      toast.error("Process failed. Please try again.", { id: toastId });
     } finally {
       setSaving(false);
     }
   };
 
   if (loading || sessionLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-orange-500/20" />
-          <p className="text-gray-400 animate-pulse font-medium">
-            Loading provider profile...
-          </p>
-        </div>
-      </div>
-    );
+    return <ProviderProfileSkeleton />;
   }
 
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <p className="text-gray-500">Please sign in to view your profile.</p>
+        <div className="text-center space-y-4">
+            <div className="w-20 h-20 bg-muted rounded-[2rem] flex items-center justify-center mx-auto">
+                <AlertCircle size={40} className="text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground font-bold tracking-tight uppercase text-xs">Authentication Required</p>
+        </div>
       </div>
     );
   }
@@ -140,483 +151,368 @@ export default function ProviderProfilePage() {
   const deliveredCount = orders.filter((o) => o.status === "DELIVERED").length;
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
+    <div className="p-4 md:p-10 max-w-6xl mx-auto space-y-10 animate-in fade-in duration-700">
       {/* ─── Hero Banner ─── */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative rounded-3xl overflow-hidden shadow-2xl"
+        className="relative rounded-[3rem] overflow-hidden bg-zinc-950 p-10 md:p-16 shadow-premium border border-white/5"
       >
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800" />
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 via-transparent to-amber-600/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-transparent to-transparent z-10" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
 
-        <div className="relative p-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            {/* Logo / Avatar */}
-            <div className="relative">
-              {form.logoUrl ? (
-                <img
-                  src={form.logoUrl}
-                  alt={profile?.businessName}
-                  className="w-24 h-24 rounded-2xl object-cover border-2 border-orange-500/30 shadow-xl"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-orange-500/20">
-                  {initials}
+        <div className="relative z-20 flex flex-col md:flex-row items-center gap-10">
+            <div className="relative group">
+                <div className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shadow-2xl transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3 overflow-hidden border-4 border-white/5">
+                    {form.logoUrl ? (
+                        <Image
+                            src={form.logoUrl}
+                            alt={profile?.businessName || "Brand"}
+                            fill
+                            className="object-cover"
+                        />
+                    ) : (
+                        <span className="text-5xl font-black text-white">{initials}</span>
+                    )}
                 </div>
-              )}
-              <div
-                className={`absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full border-2 border-gray-900 flex items-center justify-center ${
-                  profile?.isVerified ? "bg-emerald-500" : "bg-amber-500"
-                }`}
-              >
-                {profile?.isVerified ? (
-                  <CheckCircle2 size={12} className="text-white" />
-                ) : (
-                  <Clock size={12} className="text-white" />
-                )}
-              </div>
+                <div className={cn(
+                    "absolute -bottom-2 -right-2 w-10 h-10 border-4 border-zinc-950 rounded-2xl flex items-center justify-center text-white shadow-xl",
+                    profile?.isVerified ? "bg-emerald-500" : "bg-amber-500"
+                )}>
+                    {profile?.isVerified ? <CheckCircle2 size={20} strokeWidth={3} /> : <Clock size={20} strokeWidth={3} />}
+                </div>
             </div>
 
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl md:text-3xl font-black text-white">
-                  {profile?.businessName || user.name}
-                </h1>
-                {profile?.isVerified ? (
-                  <span className="flex items-center gap-1 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/20">
-                    <BadgeCheck size={12} /> Verified Provider
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 px-3 py-1 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-full border border-amber-500/20">
-                    <AlertCircle size={12} /> Pending Verification
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-4 mt-3">
-                <p className="text-gray-400 text-sm flex items-center gap-2">
-                  <Mail size={13} className="text-orange-400" />
-                  {user.email}
-                </p>
-                {profile?.address && (
-                  <p className="text-gray-400 text-sm flex items-center gap-2">
-                    <MapPin size={13} className="text-orange-400" />
-                    {profile.address}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span className="px-3 py-1 bg-white/5 text-gray-400 text-xs font-medium rounded-full border border-white/10 flex items-center gap-1">
-                  <ChefHat size={10} /> Food Provider
-                </span>
-              </div>
+            <div className="flex-1 text-center md:text-left space-y-4">
+                <div className="space-y-1">
+                    <Badge variant={profile?.isVerified ? "success" : "warning"} className="px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase">
+                        {profile?.isVerified ? "Verified Partner" : "Pending Verification"}
+                    </Badge>
+                    <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+                        {profile?.businessName || user.name}
+                    </h1>
+                </div>
+                
+                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 text-white/70 text-sm font-bold">
+                        <Mail size={16} className="text-emerald-400" />
+                        {user.email}
+                    </div>
+                    {profile?.address && (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 text-white/70 text-sm font-bold">
+                            <MapPin size={16} className="text-emerald-400" />
+                            {profile.address}
+                        </div>
+                    )}
+                </div>
             </div>
-
-            <button
-              onClick={() => setEditing(!editing)}
-              className={`shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                editing
-                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                  : "bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20"
-              }`}
+            
+            <Button 
+                variant="outline" 
+                className={cn(
+                    "rounded-full px-8 py-6 border-white/10 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] gap-2 transition-all",
+                    editing && "bg-white/20"
+                )}
+                onClick={() => setEditing(!editing)}
             >
-              {editing ? (
-                <>
-                  <X size={15} /> Cancel
-                </>
-              ) : (
-                <>
-                  <Edit3 size={15} /> Edit Profile
-                </>
-              )}
-            </button>
-          </div>
+                {editing ? <X size={16} /> : <Edit3 size={16} />}
+                {editing ? "Cancel Edit" : "Edit Profile"}
+            </Button>
+        </div>
+
+        {/* Decorative background food image */}
+        <div className="absolute inset-0 opacity-[0.07] grayscale pointer-events-none">
+            <Image 
+                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop" 
+                alt="Restaurant" 
+                fill 
+                className="object-cover"
+            />
         </div>
       </motion.div>
 
       {/* ─── Stats Row ─── */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-      >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          {
-            label: "Total Orders",
-            value: orders.length,
-            icon: ShoppingBag,
-            color: "text-blue-400",
-            bg: "bg-blue-500/10",
-            border: "border-blue-500/20",
-          },
-          {
-            label: "Pending",
-            value: pendingCount,
-            icon: Clock,
-            color: "text-amber-400",
-            bg: "bg-amber-500/10",
-            border: "border-amber-500/20",
-          },
-          {
-            label: "Completed",
-            value: deliveredCount,
-            icon: Package,
-            color: "text-emerald-400",
-            bg: "bg-emerald-500/10",
-            border: "border-emerald-500/20",
-          },
-          {
-            label: "Total Revenue",
-            value: `৳${totalRevenue.toLocaleString()}`,
-            icon: TrendingUp,
-            color: "text-purple-400",
-            bg: "bg-purple-500/10",
-            border: "border-purple-500/20",
-          },
+          { label: "Total Volume", value: orders.length, icon: ShoppingBag, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { label: "Incoming", value: pendingCount, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
+          { label: "Delivered", value: deliveredCount, icon: Package, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+          { label: "Revenue", value: `৳${totalRevenue.toLocaleString()}`, icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 + i * 0.05 }}
-            className={`rounded-2xl border ${stat.border} ${stat.bg} p-5 flex flex-col gap-3 hover:scale-[1.02] transition-transform cursor-default`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
           >
-            <div className={`${stat.color} ${stat.bg} w-10 h-10 rounded-xl flex items-center justify-center`}>
-              <stat.icon size={20} />
-            </div>
-            <div>
-              <p className="text-2xl font-black text-white">{stat.value}</p>
-              <p className="text-xs text-gray-400 font-medium mt-0.5">{stat.label}</p>
-            </div>
+            <Card className="group hover:scale-105 transition-all duration-500 cursor-default">
+              <CardContent className="p-6 flex flex-col gap-4">
+                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500", stat.bg, stat.color)}>
+                  <stat.icon size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <p className="text-3xl font-black tracking-tighter text-foreground group-hover:text-primary transition-colors">{stat.value}</p>
+                  <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">{stat.label}</p>
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
-      </motion.div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* ─── Edit / Info Card ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ─── Business Info Card ─── */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="lg:col-span-2 space-y-4"
+          transition={{ delay: 0.3 }}
+          className="lg:col-span-1 space-y-8"
         >
-          {/* Account Card */}
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl p-6 space-y-4">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Mail size={15} className="text-orange-500" />
-              Account Details
-            </h2>
-            <div className="space-y-3">
+          <Card className="overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20">
+              <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-2">
+                <ShieldCheck size={18} className="text-emerald-500" />
+                Security & Account
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8 space-y-8">
               {[
-                { label: "Name", value: user.name },
-                { label: "Email", value: user.email },
-                {
-                  label: "Email Verified",
-                  value: user.emailVerified ? "✓ Verified" : "✗ Not Verified",
-                  className: user.emailVerified
-                    ? "text-emerald-400"
-                    : "text-rose-400",
+                { label: "Legal Name", value: user.name, icon: User },
+                { label: "Digital Mail", value: user.email, icon: Mail },
+                { 
+                    label: "Verify Status", 
+                    value: user.emailVerified ? "LEGITIMATE" : "UNVERIFIED", 
+                    icon: BadgeCheck,
+                    className: user.emailVerified ? "text-emerald-500" : "text-amber-500"
                 },
-                {
-                  label: "Role",
-                  value: "PROVIDER",
-                  className: "text-orange-400",
-                },
-                {
-                  label: "Delivery Fee",
-                  value: `৳${profile?.deliveryFee || 60}`,
-                  className: "text-orange-400",
-                },
+                { label: "Platform Role", value: "PROVIDER", icon: ChefHat, className: "text-primary" },
+                { label: "Logistics Fee", value: `৳${profile?.deliveryFee || 60}`, icon: Truck },
               ].map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center justify-between py-2.5 border-b border-gray-800/60 last:border-0"
-                >
-                  <span className="text-xs text-gray-500 font-medium">
-                    {item.label}
-                  </span>
-                  <span
-                    className={`text-sm font-semibold text-gray-200 ${
-                      (item as any).className || ""
-                    }`}
-                  >
-                    {item.value}
-                  </span>
+                <div key={item.label} className="flex items-start gap-4 group">
+                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center mt-1 group-hover:bg-emerald-500/10 transition-colors">
+                        <item.icon size={18} className="text-muted-foreground group-hover:text-emerald-500 transition-colors" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em]">{item.label}</p>
+                        <p className={cn("text-sm font-bold mt-0.5", item.className)}>{item.value}</p>
+                    </div>
                 </div>
               ))}
-            </div>
-          </div>
 
-          {/* Verification Status */}
-          <div
-            className={`rounded-2xl border p-5 ${
-              profile?.isVerified
-                ? "bg-emerald-500/5 border-emerald-500/20"
-                : "bg-amber-500/5 border-amber-500/20"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              {profile?.isVerified ? (
-                <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                  <BadgeCheck size={20} className="text-emerald-400" />
+              <div className="pt-8 border-t border-border/50 space-y-4">
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em]">Recognition</p>
+                <div className="flex flex-wrap gap-3">
+                  {deliveredCount >= 1 && (
+                    <Badge variant="success" className="px-3 py-1.5 rounded-xl font-bold text-[9px] tracking-widest uppercase gap-1.5">
+                      <Star size={12} /> Grand Opening
+                    </Badge>
+                  )}
+                  {deliveredCount >= 10 && (
+                    <Badge variant="default" className="px-3 py-1.5 rounded-xl font-bold text-[9px] tracking-widest uppercase gap-1.5">
+                      <TrendingUp size={12} /> Rising Star
+                    </Badge>
+                  )}
+                  {profile?.isVerified && (
+                    <Badge variant="secondary" className="px-3 py-1.5 rounded-xl font-bold text-[9px] tracking-widest uppercase gap-1.5">
+                      <BadgeCheck size={12} /> Certified Gourmet
+                    </Badge>
+                  )}
                 </div>
-              ) : (
-                <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center">
-                  <AlertCircle size={20} className="text-amber-400" />
-                </div>
-              )}
-              <div>
-                <p
-                  className={`text-sm font-bold ${
-                    profile?.isVerified ? "text-emerald-400" : "text-amber-400"
-                  }`}
-                >
-                  {profile?.isVerified
-                    ? "Verified Provider"
-                    : "Pending Verification"}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {profile?.isVerified
-                    ? "Your business is verified and active."
-                    : "Admin review in progress."}
-                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Achievement Badges */}
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl p-5">
-            <p className="text-xs text-gray-500 uppercase tracking-wider font-bold mb-3">
-              Achievements
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {deliveredCount >= 1 && (
-                <span className="flex items-center gap-1 px-2.5 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-bold rounded-full border border-amber-500/20">
-                  <Star size={10} /> First Sale
-                </span>
-              )}
-              {deliveredCount >= 10 && (
-                <span className="flex items-center gap-1 px-2.5 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20">
-                  <TrendingUp size={10} /> 10 Orders
-                </span>
-              )}
-              {profile?.isVerified && (
-                <span className="flex items-center gap-1 px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-500/20">
-                  <BadgeCheck size={10} /> Verified
-                </span>
-              )}
-              {deliveredCount === 0 && !profile?.isVerified && (
-                <span className="text-xs text-gray-600 italic">
-                  Complete your first order to earn badges!
-                </span>
-              )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
-        {/* ─── Business Info / Edit ─── */}
+        {/* ─── Edit Form / Business Control ─── */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.25 }}
-          className="lg:col-span-3 space-y-4"
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-2 space-y-8"
         >
-          {/* Edit Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="bg-gray-900 border border-gray-800 rounded-3xl p-6 space-y-5"
-          >
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Building2 size={15} className="text-orange-500" />
-              Business Information
-            </h2>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-1.5 font-medium">
-                Business Name *
-              </label>
-              <input
-                required
-                disabled={!editing}
-                value={form.businessName}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, businessName: e.target.value }))
-                }
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/60 disabled:opacity-60 disabled:cursor-not-allowed transition"
-                placeholder="Your restaurant / business name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-1.5 font-medium">
-                Address *
-              </label>
-              <textarea
-                required
-                rows={3}
-                disabled={!editing}
-                value={form.address}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, address: e.target.value }))
-                }
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/60 disabled:opacity-60 disabled:cursor-not-allowed transition resize-none"
-                placeholder="Full business address"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-1.5 font-medium">
-                Logo URL
-              </label>
-              <div className="flex gap-3">
-                <input
-                  disabled={!editing}
-                  value={form.logoUrl}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, logoUrl: e.target.value }))
-                  }
-                  className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/60 disabled:opacity-60 disabled:cursor-not-allowed transition"
-                  placeholder="https://your-logo-url.com/logo.png"
-                />
-                {form.logoUrl && (
-                  <div className="shrink-0 w-12 h-12 rounded-xl overflow-hidden border border-gray-700">
-                    <img
-                      src={form.logoUrl}
-                      alt="logo"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  </div>
-                )}
-                {!form.logoUrl && (
-                  <div className="shrink-0 w-12 h-12 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center">
-                    <ImageIcon size={16} className="text-gray-600" />
-                  </div>
-                )}
+          <Card className="overflow-hidden">
+            <CardHeader className="border-b border-border/50 bg-muted/20 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-black uppercase tracking-widest flex items-center gap-2">
+                    <Building2 size={18} className="text-primary" />
+                    Brand Management
+                </CardTitle>
+                <CardDescription>Configure your restaurant profile and logistics.</CardDescription>
               </div>
-
-            <div>
-              <label className="block text-xs text-gray-500 mb-1.5 font-medium">
-                Delivery Fee (BDT) *
-              </label>
-              <div className="relative group">
-                <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
-                <input
-                  required
-                  type="number"
-                  disabled={!editing}
-                  value={form.deliveryFee}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, deliveryFee: Number(e.target.value) }))
-                  }
-                  className="w-full bg-gray-800 border border-gray-700 rounded-xl pl-12 pr-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/60 disabled:opacity-60 disabled:cursor-not-allowed transition"
-                  placeholder="60"
-                />
-              </div>
-              <p className="text-[10px] text-gray-500 mt-1.5 ml-1">
-                This fee will be charged to customers for each order from your restaurant.
-              </p>
-            </div>
-            </div>
-
-            {editing && (
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
-                >
-                  {saving ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <Save size={15} />
-                  )}
-                  {saving ? "Saving..." : "Save Changes"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditing(false);
-                    if (profile) {
-                      setForm({
-                        businessName: profile.businessName,
-                        address: profile.address,
-                        logoUrl: profile.logoUrl ?? "",
-                        deliveryFee: Number(profile.deliveryFee) || 60,
-                      });
-                    }
-                  }}
-                  className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-bold transition-colors"
-                >
-                  Discard
-                </button>
-              </div>
-            )}
-          </form>
-
-          {/* Recent Orders */}
-          <div className="bg-gray-900 border border-gray-800 rounded-3xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-800">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <ShoppingBag size={15} className="text-orange-500" />
-                Recent Orders
-              </h2>
-            </div>
-            <div className="divide-y divide-gray-800/40">
-              {orders.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="w-12 h-12 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-3 opacity-40">
-                    <ShoppingBag size={24} className="text-gray-500" />
-                  </div>
-                  <p className="text-sm text-gray-500">No orders yet</p>
-                </div>
-              ) : (
-                orders.slice(0, 5).map((order, i) => (
-                  <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 + i * 0.05 }}
-                    className="px-6 py-4 flex items-center justify-between gap-4 hover:bg-gray-800/30 transition-colors"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        Order #{order.id.slice(-8).toUpperCase()}
-                      </p>
-                      <p className="text-[10px] text-gray-500 mt-0.5">
-                        {order.orderItems?.length || 0} items ·{" "}
-                        {new Date(order.createdAt).toLocaleDateString("en-US", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider ${
-                          STATUS_COLORS[order.status] ||
-                          "text-gray-400 bg-gray-800"
-                        }`}
-                      >
-                        {order.status.replace(/_/g, " ")}
-                      </span>
-                      <span className="text-sm font-black text-white tabular-nums">
-                        ৳{Number(order.totalAmount).toLocaleString()}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))
+              {editing && (
+                <Badge variant="warning" className="rounded-full animate-pulse">Live Editing</Badge>
               )}
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Business Identity</label>
+                        <div className="relative group">
+                            <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary" />
+                            <Input
+                                required
+                                disabled={!editing}
+                                value={form.businessName}
+                                onChange={(e) => setForm((p) => ({ ...p, businessName: e.target.value }))}
+                                className="h-14 pl-12 rounded-2xl bg-muted/30 border-border/50 focus:bg-background transition-all font-bold disabled:opacity-50"
+                                placeholder="Gourmet Kitchen"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Logistics Fee (BDT)</label>
+                        <div className="relative group">
+                            <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary" />
+                            <Input
+                                required
+                                type="number"
+                                disabled={!editing}
+                                value={form.deliveryFee}
+                                onChange={(e) => setForm((p) => ({ ...p, deliveryFee: Number(e.target.value) }))}
+                                className="h-14 pl-12 rounded-2xl bg-muted/30 border-border/50 focus:bg-background transition-all font-bold disabled:opacity-50"
+                                placeholder="60"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Physical Address</label>
+                    <div className="relative group">
+                        <MapPin className="absolute left-4 top-6 w-4 h-4 text-muted-foreground group-focus-within:text-primary" />
+                        <textarea
+                            required
+                            rows={3}
+                            disabled={!editing}
+                            value={form.address}
+                            onChange={(e) => setForm((p) => ({ ...p, address: e.target.value }))}
+                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-muted/30 border-border/50 focus:bg-background outline-none transition-all font-bold disabled:opacity-50 resize-none text-sm border focus:ring-4 focus:ring-primary/10"
+                            placeholder="Complete operating address..."
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Brand Logo Asset</label>
+                    <div className="flex gap-4">
+                        <div className="relative flex-1 group">
+                            <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary" />
+                            <Input
+                                disabled={!editing}
+                                value={form.logoUrl}
+                                onChange={(e) => setForm((p) => ({ ...p, logoUrl: e.target.value }))}
+                                className="h-14 pl-12 rounded-2xl bg-muted/30 border-border/50 focus:bg-background transition-all font-bold disabled:opacity-50"
+                                placeholder="https://..."
+                            />
+                        </div>
+                        {form.logoUrl && (
+                            <div className="shrink-0 w-14 h-14 rounded-2xl overflow-hidden border border-border shadow-xl">
+                                <img src={form.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <AnimatePresence>
+                    {editing && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="flex gap-4 pt-4"
+                        >
+                            <Button
+                                type="submit"
+                                disabled={saving}
+                                className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs gap-2 shadow-premium"
+                            >
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={16} />}
+                                Synchronize Identity
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setEditing(false)}
+                                className="h-14 rounded-2xl px-8 font-black uppercase tracking-widest text-xs"
+                            >
+                                Revert
+                            </Button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+              </form>
+
+              {/* Order History Preview */}
+              <div className="mt-12 pt-12 border-t border-border/50 space-y-6">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Recent Transactions</h3>
+                    <Button variant="ghost" className="text-[9px] font-black uppercase tracking-widest h-8" asChild>
+                        <Link href="/provider/dashboard/orders">View All <ChevronRight size={12} className="ml-1" /></Link>
+                    </Button>
+                </div>
+                
+                <div className="space-y-4">
+                  {orders.length === 0 ? (
+                    <div className="py-12 text-center opacity-30">
+                        <ShoppingBag size={32} className="mx-auto mb-2" />
+                        <p className="text-[10px] font-black uppercase tracking-widest">No Activity Yet</p>
+                    </div>
+                  ) : (
+                    orders.slice(0, 3).map((order) => {
+                        const config = STATUS_CONFIG[order.status] || { variant: "outline", label: order.status };
+                        return (
+                            <div key={order.id} className="flex items-center justify-between p-5 rounded-2xl bg-muted/20 border border-border/30 hover:border-primary/30 transition-all group">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                        <Package size={16} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black uppercase tracking-widest">#{order.id.slice(-8).toUpperCase()}</p>
+                                        <p className="text-[10px] text-muted-foreground font-medium">
+                                            {new Date(order.createdAt).toLocaleDateString()} · {order.orderItems?.length} ITEMS
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-6">
+                                    <p className="text-sm font-black tabular-nums">৳{Number(order.totalAmount).toLocaleString()}</p>
+                                    <Badge variant={config.variant} className="px-2 py-1 rounded-lg text-[8px] font-black tracking-widest uppercase">
+                                        {config.label}
+                                    </Badge>
+                                </div>
+                            </div>
+                        );
+                    })
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
+      </div>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 20px; }
+      `}</style>
+    </div>
+  );
+}
+
+function ProviderProfileSkeleton() {
+  return (
+    <div className="p-4 md:p-10 max-w-6xl mx-auto space-y-10">
+      <Skeleton className="h-64 md:h-80 w-full rounded-[3rem]" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-32 w-full rounded-[2.5rem]" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Skeleton className="h-[600px] lg:col-span-1 rounded-[2.5rem]" />
+        <Skeleton className="h-[600px] lg:col-span-2 rounded-[2.5rem]" />
       </div>
     </div>
   );

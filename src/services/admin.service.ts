@@ -80,4 +80,24 @@ export const adminService = {
     return res.data;
   },
 
+  getAllOrders: async () => {
+    const res = await fetcher('/admin/orders', {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to fetch all orders");
+    }
+    return Array.isArray(res.data) ? res.data : [];
+  },
+
+  getAllProviders: async () => {
+    const res = await fetcher('/admin/providers', {
+      cache: "no-store",
+    });
+    if (!res.success) {
+      throw new Error(res.message || "Failed to fetch all providers");
+    }
+    return Array.isArray(res.data) ? res.data : [];
+  },
+
 };

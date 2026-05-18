@@ -50,6 +50,26 @@ const STATUS_META: Record<
   },
 };
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MapPin, Phone, RefreshCcw } from "lucide-react";
+
 type FilterStatus = OrderStatus | "ALL";
 
 export default function ProviderOrdersPage() {
@@ -57,6 +77,10 @@ export default function ProviderOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterStatus>("ALL");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchOrders();
@@ -68,7 +92,6 @@ export default function ProviderOrdersPage() {
       const ordersData = await orderService.getProviderOrders();
       setOrders(ordersData);
     } catch {
-
       toast.error("Orders load failed");
     } finally {
       setLoading(false);
@@ -80,7 +103,6 @@ export default function ProviderOrdersPage() {
     try {
       await orderService.updateOrderStatus(orderId, status);
       setOrders((prev) =>
-
         prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
       );
       toast.success(`→ ${STATUS_META[status].label}`);
@@ -91,90 +113,173 @@ export default function ProviderOrdersPage() {
     }
   };
 
-  const filtered =
-    filter === "ALL" ? orders : orders.filter((o) => o.status === filter);
+  const filtered = filter === "ALL" ? orders : orders.filter((o) => o.status === filter);
+  
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentOrders = filtered.slice(startIndex, startIndex + itemsPerPage);
 
   const countByStatus = (s: OrderStatus) =>
     orders.filter((o) => o.status === s).length;
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-screen bg-gray-950 p-4 md:p-8 space-y-6">
       {/* Page Header */}
-      <header className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur border-b border-gray-800 px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-base font-semibold text-white">Orders</h1>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {orders.length} total orders
-            </p>
-          </div>
-          <button
-            onClick={fetchOrders}
-            className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg border border-gray-700 transition"
-          >
-            ↻ Refresh
-          </button>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-white tracking-tight">Order Management</h1>
+          <p className="text-gray-500 font-medium">Handle your kitchen pipeline efficiently</p>
         </div>
+        <Button 
+          variant="outline" 
+          onClick={fetchOrders}
+          className="rounded-xl border-gray-800 hover:bg-gray-900 font-bold"
+        >
+          <RefreshCcw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
       </header>
 
-      <div className="px-8 py-6 flex-1">
-        {/* Status Filter Tabs */}
-        <div className="flex gap-2 flex-wrap mb-6">
+      {/* Status Filter Tabs */}
+      <div className="flex gap-2 flex-wrap bg-gray-900/50 p-2 rounded-2xl border border-gray-800/50 w-fit">
+        <FilterPill
+          label="All"
+          count={orders.length}
+          active={filter === "ALL"}
+          onClick={() => { setFilter("ALL"); setCurrentPage(1); }}
+        />
+        {(
+          [
+            "PENDING",
+            "CONFIRMED",
+            "PREPARING",
+            "OUT_FOR_DELIVERY",
+            "DELIVERED",
+            "CANCELLED",
+          ] as OrderStatus[]
+        ).map((s) => (
           <FilterPill
-            label="All"
-            count={orders.length}
-            active={filter === "ALL"}
-            onClick={() => setFilter("ALL")}
+            key={s}
+            label={STATUS_META[s].label}
+            count={countByStatus(s)}
+            active={filter === s}
+            onClick={() => { setFilter(s); setCurrentPage(1); }}
+            dot={STATUS_META[s].dot}
           />
-          {(
-            [
-              "PENDING",
-              "CONFIRMED",
-              "PREPARING",
-              "OUT_FOR_DELIVERY",
-              "DELIVERED",
-              "CANCELLED",
-            ] as OrderStatus[]
-          ).map((s) => (
-            <FilterPill
-              key={s}
-              label={STATUS_META[s].label}
-              count={countByStatus(s)}
-              active={filter === s}
-              onClick={() => setFilter(s)}
-              dot={STATUS_META[s].dot}
-            />
-          ))}
-        </div>
-
-        {/* Orders List */}
-        {loading ? (
-          <div className="space-y-3">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="h-32 rounded-xl bg-gray-900 animate-pulse"
-              />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-24 text-gray-600">
-            <p className="text-4xl mb-3 opacity-30">∅</p>
-            <p className="text-sm">No orders found</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filtered.map((order) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                onStatusChange={updateStatus}
-                updating={updatingId === order.id}
-              />
-            ))}
-          </div>
-        )}
+        ))}
       </div>
+
+      {/* Orders Table */}
+      <div className="bg-gray-900/40 border border-gray-800/60 rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-xl">
+        <Table>
+          <TableHeader className="bg-gray-900/60">
+            <TableRow className="border-gray-800/60 hover:bg-transparent">
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Reference</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Customer</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Status</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Amount</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8 text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              [...Array(5)].map((_, i) => (
+                <TableRow key={i} className="border-gray-800/40">
+                  <TableCell colSpan={5} className="py-8 px-8"><div className="h-12 w-full bg-gray-800/50 animate-pulse rounded-xl" /></TableCell>
+                </TableRow>
+              ))
+            ) : currentOrders.length === 0 ? (
+              <TableRow className="hover:bg-transparent border-none">
+                <TableCell colSpan={5} className="py-32 text-center">
+                  <div className="flex flex-col items-center gap-4 opacity-30">
+                    <p className="text-6xl font-black">∅</p>
+                    <p className="text-lg font-bold">No orders matching criteria</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              currentOrders.map((order) => {
+                const meta = STATUS_META[order.status];
+                return (
+                  <TableRow key={order.id} className="border-gray-800/40 hover:bg-white/5 transition-colors group">
+                    <TableCell className="px-8 py-6">
+                      <span className="font-mono text-xs font-bold text-gray-500 group-hover:text-white transition-colors">#{order.id.slice(-8).toUpperCase()}</span>
+                    </TableCell>
+                    <TableCell className="px-8 py-6">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-gray-200">{order.customer?.name ?? "Guest User"}</span>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="flex items-center gap-1 text-[10px] text-gray-500"><Phone size={10} /> {order.phone}</span>
+                          <span className="flex items-center gap-1 text-[10px] text-gray-500 truncate max-w-[150px]"><MapPin size={10} /> {order.deliveryAddress}</span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-8 py-6">
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border ${meta.color}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                        {meta.label}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-8 py-6">
+                      <span className="text-sm font-black text-orange-400 tabular-nums">৳{order.totalAmount}</span>
+                    </TableCell>
+                    <TableCell className="px-8 py-6 text-right">
+                       <div className="flex justify-end gap-2">
+                        {ORDER_STATUSES.filter(s => s !== order.status && s !== "PENDING").slice(0, 2).map(s => (
+                          <Button
+                            key={s}
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => updateStatus(order.id, s)}
+                            disabled={updatingId === order.id}
+                            className="text-[10px] font-black uppercase tracking-tighter bg-gray-800 hover:bg-gray-700 rounded-lg h-8"
+                          >
+                            Mark {STATUS_META[s].label}
+                          </Button>
+                        ))}
+                       </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="pt-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  className={`rounded-xl border-gray-800 font-bold ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                />
+              </PaginationItem>
+              {[...Array(totalPages)].map((_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    isActive={currentPage === i + 1}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`rounded-xl border-gray-800 font-bold ${currentPage === i + 1 ? 'bg-orange-500 text-white' : 'cursor-pointer'}`}
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  className={`rounded-xl border-gray-800 font-bold ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }

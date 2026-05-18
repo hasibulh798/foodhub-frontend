@@ -102,12 +102,18 @@ export async function fetcher(url: string, options?: RequestInit) {
     fullUrl = normalizedUrl;
   }
 
+  const headers: HeadersInit = {
+    ...options?.headers,
+  };
+
+  if (!(options?.body instanceof FormData)) {
+    (headers as any)["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(fullUrl, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
     ...options,
+    headers,
   });
 
   // Check content-type before JSON parsing

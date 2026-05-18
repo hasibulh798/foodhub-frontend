@@ -34,14 +34,28 @@ export default function Footer() {
               Connecting you with the finest local kitchens and home chefs. 
               Fresh ingredients, authentic flavors, delivered with love.
             </p>
+            <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <MapPin size={16} className="text-primary" />
+                    <span>123 Culinary Ave, Food City</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <Phone size={16} className="text-primary" />
+                    <span>+880 1234 567890</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors">
+                    <Mail size={16} className="text-primary" />
+                    <span>concierge@foodhub.com</span>
+                </div>
+            </div>
             <div className="flex items-center gap-4">
               {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
                 <Link 
                   key={i} 
                   href="#" 
-                  className="p-2 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-600/10 transition-all"
+                  className="p-3 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-400 hover:text-white hover:bg-primary transition-all shadow-sm"
                 >
-                  <Icon size={18} />
+                  <Icon size={20} />
                 </Link>
               ))}
             </div>
@@ -50,20 +64,20 @@ export default function Footer() {
           {/* Useful Links */}
           <div>
             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white mb-6">
-              Featured Menu
+              Culinary Journey
             </h4>
             <ul className="space-y-4">
               {[
-                { name: "Browse Menu", href: "/meals" },
-                { name: "Top Restaurants", href: "/restaurants" },
+                { name: "Global Menu", href: "/meals" },
+                { name: "Top Hubs", href: "/restaurants" },
                 { name: "Special Offers", href: "#" },
                 { name: "Track Order", href: "/dashboard/orders" },
-                { name: "New Arrivals", href: "#" },
+                { name: "Join the Team", href: "/contact" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 text-sm font-medium transition-colors"
+                    className="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary text-sm font-bold transition-all hover:translate-x-1 inline-block"
                   >
                     {link.name}
                   </Link>
@@ -75,20 +89,20 @@ export default function Footer() {
           {/* Support */}
           <div>
             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white mb-6">
-              Company
+              Platform
             </h4>
             <ul className="space-y-4">
               {[
-                { name: "Our Story", href: "/about" },
-                { name: "Contact Support", href: "/contact" },
-                { name: "Terms & Conditions", href: "#" },
+                { name: "Our Manifesto", href: "/about" },
+                { name: "Culinary Support", href: "/contact" },
+                { name: "Trust & Safety", href: "#" },
                 { name: "Privacy Policy", href: "#" },
-                { name: "Join as Provider", href: "/register?role=PROVIDER" },
+                { name: "Partner With Us", href: "/signup" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-500 text-sm font-medium transition-colors"
+                    className="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary text-sm font-bold transition-all hover:translate-x-1 inline-block"
                   >
                     {link.name}
                   </Link>

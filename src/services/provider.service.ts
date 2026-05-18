@@ -66,7 +66,7 @@ export const providerServices = {
   createMeal: async (data: any) => {
     const res = await fetcher(`/provider/meals`, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
     if (!res.success) {
       throw new Error(res.message || "Failed to create meal");
@@ -77,7 +77,7 @@ export const providerServices = {
   updateMeal: async (mealId: string, data: any) => {
     const res = await fetcher(`/provider/meals/${mealId}`, {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
     if (!res.success) {
       throw new Error(res.message || "Failed to update meal");

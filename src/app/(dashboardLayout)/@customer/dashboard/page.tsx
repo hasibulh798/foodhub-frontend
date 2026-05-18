@@ -12,19 +12,45 @@ import {
   ArrowRight,
   TrendingUp,
   Package,
-  Calendar
+  Calendar,
+  ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: any }> = {
-  PENDING: { color: "text-amber-400", bg: "bg-amber-400/10", icon: Clock },
-  CONFIRMED: { color: "text-blue-400", bg: "bg-blue-400/10", icon: CheckCircle2 },
-  PREPARING: { color: "text-purple-400", bg: "bg-purple-400/10", icon: Package },
-  OUT_FOR_DELIVERY: { color: "text-orange-400", bg: "bg-orange-400/10", icon: TrendingUp },
-  DELIVERED: { color: "text-emerald-400", bg: "bg-emerald-400/10", icon: CheckCircle2 },
-  CANCELLED: { color: "text-rose-400", bg: "bg-rose-400/10", icon: XCircle },
+  PENDING: { color: "text-amber-500", bg: "bg-amber-500/10", icon: Clock },
+  CONFIRMED: { color: "text-blue-500", bg: "bg-blue-500/10", icon: CheckCircle2 },
+  PREPARING: { color: "text-purple-500", bg: "bg-purple-500/10", icon: Package },
+  OUT_FOR_DELIVERY: { color: "text-orange-500", bg: "bg-orange-500/10", icon: TrendingUp },
+  DELIVERED: { color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle2 },
+  CANCELLED: { color: "text-rose-500", bg: "bg-rose-500/10", icon: XCircle },
 };
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex justify-between items-center">
+        <div className="space-y-2">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <Skeleton className="h-12 w-40 rounded-full" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Skeleton className="h-32 rounded-3xl" />
+        <Skeleton className="h-32 rounded-3xl" />
+        <Skeleton className="h-32 rounded-3xl" />
+      </div>
+      <Skeleton className="h-96 rounded-3xl" />
+    </div>
+  );
+}
 
 export default function CustomerDashboard() {
   const { data: session, isPending: sessionLoading } = useSession();
@@ -35,7 +61,7 @@ export default function CustomerDashboard() {
     const fetchOrders = async () => {
       try {
         const data = await orderService.getMyOrders();
-        setOrders(data);
+        setOrders(data || []);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       } finally {
@@ -52,121 +78,133 @@ export default function CustomerDashboard() {
   const activeOrders = orders.filter(o => !["DELIVERED", "CANCELLED"].includes(o.status)).length;
 
   if (sessionLoading || loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[80vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-orange-500/20" />
-          <p className="text-gray-500 animate-pulse font-medium tracking-wide">Cooking up your dashboard...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   const user = session?.user;
 
   return (
-    <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto">
       {/* Welcome Header */}
       <section className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           className="space-y-1"
         >
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            Hello, <span className="text-orange-500">{user?.name?.split(" ")[0]}</span>! 👋
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
+            Welcome back, <span className="text-primary">{user?.name?.split(" ")[0]}</span>! 🍔
           </h1>
-          <p className="text-gray-400 font-medium">Manage your cravings and track your delights.</p>
+          <p className="text-muted-foreground font-medium text-lg">What are we craving today?</p>
         </motion.div>
         
-        <Link 
-          href="/meals" 
-          className="group inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-500 text-white px-8 py-3.5 rounded-2xl font-bold transition-all shadow-xl shadow-orange-600/10 active:scale-95"
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
         >
-          Explore Menu
-          <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-        </Link>
+          <Button size="lg" className="rounded-full font-bold px-8" asChild>
+            <Link href="/meals">
+              Explore Menu
+              <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        </motion.div>
       </section>
 
       {/* Stats Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
-          { label: "Total Orders", value: orders.length, icon: ShoppingBag, color: "blue", bg: "bg-blue-500/10", text: "text-blue-500" },
-          { label: "Active Orders", value: activeOrders, icon: Clock, color: "orange", bg: "bg-orange-500/10", text: "text-orange-500" },
-          { label: "Total Spent", value: `৳${totalSpent.toLocaleString()}`, icon: TrendingUp, color: "emerald", bg: "bg-emerald-500/10", text: "text-emerald-500" },
+          { label: "Total Orders", value: orders.length, icon: ShoppingBag, color: "primary" },
+          { label: "Active Orders", value: activeOrders, icon: Clock, color: "orange" },
+          { label: "Total Spent", value: `৳${totalSpent.toLocaleString()}`, icon: TrendingUp, color: "emerald" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="p-6 rounded-[2.5rem] bg-gray-900 border border-gray-800 hover:border-gray-700 transition-all duration-300 group relative overflow-hidden"
           >
-            <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.bg} rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity`} />
-            <div className="relative flex items-center gap-5">
-              <div className={`p-4 rounded-2xl ${stat.bg} ${stat.text}`}>
-                <stat.icon size={28} />
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">{stat.label}</p>
-                <p className="text-3xl font-black mt-1 text-white tabular-nums">{stat.value}</p>
-              </div>
-            </div>
+            <Card className="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 group">
+              <CardContent className="p-6 relative">
+                <div className="flex items-center gap-5">
+                  <div className={`p-4 rounded-2xl bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300`}>
+                    <stat.icon size={24} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest">{stat.label}</p>
+                    <p className="text-3xl font-black mt-1 tabular-nums">{stat.value}</p>
+                  </div>
+                </div>
+                <div className="absolute top-0 right-0 p-2 opacity-5">
+                  <stat.icon size={80} strokeWidth={1} />
+                </div>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
       </section>
 
       {/* Recent Activity */}
-      <section className="bg-gray-900 border border-gray-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
-        <div className="p-8 border-b border-gray-800 flex items-center justify-between bg-gradient-to-r from-gray-900 via-gray-900 to-gray-800/20">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gray-800 rounded-xl">
-              <Calendar className="text-orange-500" size={20} />
-            </div>
-            <h3 className="text-xl font-bold text-white">Recent Orders</h3>
+      <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/50 dark:bg-card/50 backdrop-blur-xl">
+        <CardHeader className="flex flex-row items-center justify-between p-8 border-b border-border/50 bg-muted/20">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-black flex items-center gap-3">
+              <div className="p-2 bg-primary/10 text-primary rounded-xl">
+                <Calendar size={20} />
+              </div>
+              Recent Orders
+            </CardTitle>
+            <CardDescription className="text-muted-foreground font-medium">Track your most recent food adventures</CardDescription>
           </div>
-          <Link href="/dashboard/orders" className="text-orange-500 text-sm font-bold hover:text-orange-400 transition-colors px-4 py-2 hover:bg-orange-500/5 rounded-xl">
-            View History
-          </Link>
-        </div>
+          <Button variant="outline" size="sm" className="rounded-xl font-bold" asChild>
+            <Link href="/dashboard/orders">View All</Link>
+          </Button>
+        </CardHeader>
         
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black">
+              <tr className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-black border-b border-border/30">
                 <th className="px-8 py-5">Order Reference</th>
-                <th className="px-8 py-5">Delight From</th>
+                <th className="px-8 py-5">Restaurant</th>
                 <th className="px-8 py-5">Status</th>
-                <th className="px-8 py-5">Total Amount</th>
-                <th className="px-8 py-5 text-right">Placed On</th>
+                <th className="px-8 py-5">Amount</th>
+                <th className="px-8 py-5 text-right">Date</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-border/30">
               {orders.slice(0, 5).map((order) => {
                 const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.PENDING;
                 const StatusIcon = config.icon;
                 return (
-                  <tr key={order.id} className="group hover:bg-gray-800/20 transition-all">
+                  <tr key={order.id} className="group hover:bg-primary/[0.02] transition-all">
                     <td className="px-8 py-6">
-                      <span className="text-xs font-mono font-bold text-gray-500 group-hover:text-gray-300 transition-colors">#{order.id.slice(-8).toUpperCase()}</span>
+                      <span className="text-xs font-mono font-bold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-tight">#{order.id.slice(-8)}</span>
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-gray-200">{order.provider?.businessName || "Chef Delight"}</span>
-                        <span className="text-[10px] text-gray-500">{order.orderItems?.length || 0} items ordered</span>
+                        <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{order.provider?.businessName || "Chef Delight"}</span>
+                        <span className="text-[11px] text-muted-foreground">{order.orderItems?.length || 0} items ordered</span>
                       </div>
                     </td>
                     <td className="px-8 py-6">
-                      <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase ${config.bg} ${config.color} border border-white/5 shadow-inner`}>
-                        <StatusIcon size={12} className="stroke-[3]" />
+                      <Badge 
+                        variant="outline"
+                        className={cn(
+                          "px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase border border-current/10",
+                          config.bg, 
+                          config.color
+                        )}
+                      >
+                        <StatusIcon size={12} strokeWidth={3} className="mr-2" />
                         {order.status.replace(/_/g, " ")}
-                      </div>
+                      </Badge>
                     </td>
                     <td className="px-8 py-6">
-                      <span className="text-sm font-black text-white tabular-nums">৳{Number(order.totalAmount).toLocaleString()}</span>
+                      <span className="text-sm font-black text-foreground tabular-nums">৳{Number(order.totalAmount).toLocaleString()}</span>
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <span className="text-xs font-bold text-gray-500">
+                      <span className="text-xs font-bold text-muted-foreground">
                         {new Date(order.createdAt).toLocaleDateString("en-BD", {
                           day: "numeric",
                           month: "short",
@@ -178,19 +216,22 @@ export default function CustomerDashboard() {
               })}
               {orders.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-8 py-32 text-center text-gray-500">
+                  <td colSpan={5} className="px-8 py-32 text-center text-muted-foreground">
                     <motion.div 
-                      className="flex flex-col items-center gap-4 opacity-40"
+                      className="flex flex-col items-center gap-4"
                       initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 0.4 }}
+                      animate={{ scale: 1, opacity: 1 }}
                     >
-                      <div className="p-6 bg-gray-800 rounded-[2rem]">
-                        <ShoppingBag size={64} className="stroke-[1.5]" />
+                      <div className="p-8 bg-muted rounded-[2.5rem] text-muted-foreground/30">
+                        <ShoppingBag size={80} strokeWidth={1} />
                       </div>
                       <div className="space-y-1">
-                        <p className="text-lg font-bold">Your order history is empty</p>
-                        <p className="text-sm">Start your food journey by exploring the menu!</p>
+                        <p className="text-xl font-black text-foreground">No orders yet</p>
+                        <p className="text-sm font-medium">Your food journey starts here!</p>
                       </div>
+                      <Button className="mt-4 rounded-full font-bold px-8" asChild>
+                        <Link href="/meals">Start Ordering</Link>
+                      </Button>
                     </motion.div>
                   </td>
                 </tr>
@@ -198,7 +239,7 @@ export default function CustomerDashboard() {
             </tbody>
           </table>
         </div>
-      </section>
+      </Card>
     </div>
   );
 }

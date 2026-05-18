@@ -217,14 +217,14 @@ export default function CTA() {
           <div className="flex items-center gap-3">
             <div className="flex -space-x-3">
               {[
-                "photo-1494790108377-be9c29b29330",
-                "photo-1507003211169-0a1dd7228f2d",
-                "photo-1580489944761-15a19d654956",
-                "photo-1599566150163-29194dcaad36",
-              ].map((id, i) => (
+                "/home/cta/1.jpg",
+                "/home/cta/2.jpg",
+                "/home/cta/3.jpg",
+                "/home/cta/4.jpg",
+              ].map((src, i) => (
                 <img
                   key={i}
-                  src={`https://images.unsplash.com/${id}?q=60&w=80&h=80&auto=format&fit=crop`}
+                  src={src}
                   alt=""
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-gray-900 object-cover"
                 />

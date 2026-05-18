@@ -67,7 +67,7 @@ export default function FeaturesSection() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-bold uppercase tracking-widest mb-5 sm:mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-[0.25em] mb-5 sm:mb-6"
           >
             <ShieldCheck size={14} />
             Why Choose Us
@@ -78,9 +78,9 @@ export default function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-4 sm:mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight leading-none sm:leading-tight mb-4 sm:mb-6"
           >
-            Built for <span className="text-orange-600">Your Convenience</span>
+            Built for <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Your Convenience</span>
           </motion.h2>
 
           <motion.p

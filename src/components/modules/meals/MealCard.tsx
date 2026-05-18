@@ -3,16 +3,17 @@
 import { useCart } from "@/lib/Cart-context";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Minus, Info, Utensils, Star, Heart } from "lucide-react";
+import { Plus, Minus, Info, Utensils, Star, Heart, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
 interface MealType {
   id: string;
   name: string;
   description: string;
   price: number;
-  imageUrl?: string | null;
+  images: string[];
   isAvailable: boolean;
   dietaryType?: "VEG" | "NON_VEG" | "VEGAN" | null;
 }
@@ -29,7 +30,7 @@ interface MealCardProps {
 export default function MealCard({ provider, meal }: MealCardProps) {
   const { addItem, items, removeItem } = useCart();
   const [isLiked, setIsLiked] = useState(false);
-  const [isPopular] = useState(() => Math.random() > 0.7);
+  const [isPopular] = useState(() => Math.random() > 0.8);
   
   if (!meal) return null;
 
@@ -37,12 +38,11 @@ export default function MealCard({ provider, meal }: MealCardProps) {
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
-    // If provider is passed as prop, use it. Otherwise try to get it from meal.
     const pId = provider?.id || (meal as any).providerId;
     const dFee = Number(provider?.deliveryFee) || Number((meal as any).provider?.deliveryFee) || 60;
 
     if (!pId) {
-      toast.error("Provider information missing");
+      toast.error("Kitchen info missing");
       return;
     }
 
@@ -50,19 +50,21 @@ export default function MealCard({ provider, meal }: MealCardProps) {
       mealId: meal.id,
       name: meal.name,
       price: Number(meal.price),
-      imageUrl: meal.imageUrl ?? undefined,
+      imageUrl: meal.images && meal.images.length > 0 ? meal.images[0] : undefined,
       providerId: pId,
       deliveryFee: dFee,
     });
+
     if (quantity === 0) {
-      toast.success(`${meal.name} added to selection`, {
+      toast.success(`${meal.name} added!`, {
         icon: '👨‍🍳',
         style: {
-          borderRadius: '20px',
-          background: '#111827',
-          color: '#fff',
-          fontSize: '14px',
-          padding: '16px 24px',
+          borderRadius: '1.5rem',
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--foreground))',
+          fontWeight: 'bold',
+          border: '1px solid hsl(var(--border))',
+          boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
         },
       });
     }
@@ -77,112 +79,116 @@ export default function MealCard({ provider, meal }: MealCardProps) {
   return (
     <motion.div 
       layout
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      className="group relative bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-gray-100 dark:border-zinc-800 shadow-sm hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 overflow-hidden flex flex-col h-full"
+      className="group relative bg-card rounded-[2.5rem] border border-border/50 shadow-sm hover:shadow-premium transition-all duration-500 overflow-hidden flex flex-col h-full"
     >
       {/* Top Media Section */}
-      <div className="relative h-60 w-full bg-gray-50 dark:bg-zinc-800 overflow-hidden">
-        {meal.imageUrl ? (
+      <div className="relative h-64 w-full bg-muted overflow-hidden">
+        {meal.images && meal.images.length > 0 ? (
           <Image
-            src={meal.imageUrl}
+            src={meal.images[0]}
             alt={meal.name}
             fill
             className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 dark:text-zinc-700">
-             <Utensils size={48} className="mb-2 opacity-20" />
+          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/30">
+             <Utensils size={64} strokeWidth={1} className="mb-2" />
              <span className="text-[10px] font-black uppercase tracking-[0.3em]">No Preview</span>
           </div>
         )}
         
         {/* Overlays */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
         
         {/* Floating Actions */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 translate-x-12 group-hover:translate-x-0 transition-transform duration-500">
+        <div className="absolute top-5 right-5 flex flex-col gap-2 translate-x-14 group-hover:translate-x-0 transition-transform duration-500 delay-75">
             <button 
               onClick={() => setIsLiked(!isLiked)}
-              className={`p-2.5 rounded-full backdrop-blur-md shadow-lg transition-all ${isLiked ? 'bg-red-500 text-white' : 'bg-white/20 text-white hover:bg-white/40'}`}
+              className={`p-3 rounded-2xl backdrop-blur-md shadow-xl transition-all active:scale-90 ${isLiked ? 'bg-rose-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
             >
-                <Heart size={16} className={isLiked ? "fill-current" : ""} />
+                <Heart size={18} className={isLiked ? "fill-current" : ""} />
             </button>
             <Link 
-                href={`/restaurants/${provider?.id}/meals/${meal.id}`}
-                className="p-2.5 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white shadow-lg transition-all"
+                href={`/restaurants/${provider?.id || (meal as any).providerId}/meals/${meal.id}`}
+                className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white shadow-xl transition-all active:scale-90"
             >
-                <Info size={16} />
+                <Info size={18} />
             </Link>
         </div>
 
-        {/* Dietary Tag */}
-        {meal.dietaryType && (
-           <div className={`absolute top-4 left-4 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest backdrop-blur-md border border-white/20 shadow-xl flex items-center gap-1.5 ${
-             meal.dietaryType === "VEG" ? "bg-emerald-500/80 text-white" : "bg-red-500/80 text-white"
-           }`}>
-             <span className={`w-1.5 h-1.5 rounded-full bg-white ${meal.dietaryType === "VEG" ? "animate-pulse" : ""}`} />
-             {meal.dietaryType}
-           </div>
-        )}
-
-        {/* Popular Badge Placeholder */}
-        {isPopular && (
-            <div className="absolute bottom-4 left-4 flex items-center gap-1 bg-amber-500 text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-lg">
-                <Star size={10} className="fill-current" />
-                Popular Choice
+        {/* Status Badges */}
+        <div className="absolute top-5 left-5 flex flex-col gap-2">
+            {meal.dietaryType && (
+            <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest backdrop-blur-md border border-white/20 shadow-2xl flex items-center gap-2 ${
+                meal.dietaryType === "VEG" ? "bg-emerald-500/80 text-white" : "bg-primary/80 text-white"
+            }`}>
+                <span className={`w-1.5 h-1.5 rounded-full bg-white ${meal.dietaryType === "VEG" ? "animate-pulse" : ""}`} />
+                {meal.dietaryType}
             </div>
-        )}
+            )}
+            {isPopular && (
+                <div className="flex items-center gap-2 bg-amber-500/90 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-2xl backdrop-blur-md border border-white/20">
+                    <Star size={12} className="fill-current" />
+                    Popular
+                </div>
+            )}
+        </div>
+
+        {/* Hover Info Overlay */}
+        <div className="absolute bottom-5 left-5 right-5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+             <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest line-clamp-1">
+                From {provider?.businessName || (meal as any).provider?.businessName || "Chef Delight"}
+             </p>
+        </div>
       </div>
 
       {/* Main Content Area */}
       <div className="p-8 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-4 mb-3">
-            <h3 className="text-xl font-black text-gray-900 dark:text-white leading-tight group-hover:text-orange-600 transition-colors">
-                <Link href={`/restaurants/${provider?.id}/meals/${meal.id}`} className="hover:text-orange-600 transition-colors"  >
+        <div className="flex items-start justify-between gap-4 mb-4">
+            <h3 className="text-2xl font-black text-foreground leading-tight group-hover:text-primary transition-colors">
+                <Link href={`/restaurants/${provider?.id || (meal as any).providerId}/meals/${meal.id}`} className="hover:text-primary transition-colors">
                     {meal.name}
                 </Link>
             </h3>
             <div className="flex flex-col items-end">
-                <span className="text-lg font-black text-orange-600 tabular-nums">
-                    ৳{Number(meal.price)}
-                </span>
-                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Per Serving</span>
+                <div className="text-2xl font-black text-primary tabular-nums">
+                    ৳{Number(meal.price).toLocaleString()}
+                </div>
+                <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">serving</div>
             </div>
         </div>
 
-        <p className="text-sm text-gray-500 dark:text-gray-400 font-medium line-clamp-2 leading-relaxed flex-1 mb-8">
-            {meal.description || "Indulge in our masterfully crafted signature dish, prepared with premium locally sourced ingredients and authentic family recipes passed down through generations."}
+        <p className="text-sm text-muted-foreground font-medium line-clamp-2 leading-relaxed flex-1 mb-8 italic opacity-80 group-hover:opacity-100 transition-opacity">
+            {meal.description || "A masterfully crafted signature dish, prepared with premium locally sourced ingredients and authentic family secrets."}
         </p>
 
-        {/* Unified Action Button / Quantity Selector */}
+        {/* Actions */}
         <div className="relative mt-auto">
             <AnimatePresence mode="wait">
                 {quantity > 0 ? (
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="flex items-center justify-between bg-orange-600 rounded-[1.5rem] p-1 shadow-xl shadow-orange-600/30 border border-orange-500"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="flex items-center justify-between bg-primary rounded-3xl p-1.5 shadow-xl shadow-primary/30 border border-primary/50"
                     >
                         <button 
                             onClick={handleRemoveOne}
-                            className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all"
+                            className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all active:scale-90"
                         >
-                            <Minus size={18} strokeWidth={3} />
+                            <Minus size={20} strokeWidth={4} />
                         </button>
                         
                         <div className="flex flex-col items-center">
-                            <span className="text-lg font-black text-white tabular-nums leading-none">{quantity}</span>
-                            <span className="text-[8px] font-black text-white/60 uppercase tracking-widest">In Plate</span>
+                            <span className="text-xl font-black text-white tabular-nums leading-none">{quantity}</span>
+                            <span className="text-[9px] font-black text-white/70 uppercase tracking-widest mt-1">Added</span>
                         </div>
 
                         <button 
                             onClick={handleAddToCart}
-                            className="p-3 bg-white text-orange-600 rounded-2xl transition-all active:scale-95 shadow-lg"
+                            className="p-3 bg-white text-primary rounded-2xl transition-all active:scale-95 shadow-xl hover:shadow-white/20"
                         >
-                            <Plus size={18} strokeWidth={3} />
+                            <Plus size={20} strokeWidth={4} />
                         </button>
                     </motion.div>
                 ) : (
@@ -192,17 +198,17 @@ export default function MealCard({ provider, meal }: MealCardProps) {
                         exit={{ opacity: 0 }}
                         disabled={!meal.isAvailable}
                         onClick={handleAddToCart}
-                        className={`w-full py-5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 group/btn flex items-center justify-center gap-3 active:scale-[0.98] ${
+                        className={`w-full py-5 rounded-3xl text-[11px] font-black uppercase tracking-[0.25em] transition-all duration-500 group/btn flex items-center justify-center gap-3 active:scale-[0.98] border shadow-sm ${
                             meal.isAvailable
-                            ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-orange-600 hover:dark:bg-orange-600 hover:text-white shadow-xl shadow-gray-900/10 hover:shadow-orange-600/20"
-                            : "bg-gray-100 dark:bg-zinc-800 text-gray-400 dark:text-zinc-600 cursor-not-allowed"
+                            ? "bg-foreground text-background hover:bg-primary hover:text-white hover:border-primary shadow-xl hover:shadow-primary/30"
+                            : "bg-muted text-muted-foreground/50 border-transparent cursor-not-allowed"
                         }`}
                     >
                         {meal.isAvailable ? (
                             <>
-                                <Utensils size={14} className="stroke-[3] group-hover:rotate-12 transition-transform" />
-                                <span>Add to Cart</span>
-                                <Plus size={12} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                                <ShoppingBag size={16} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+                                <span>Add to Selection</span>
+                                <Plus size={14} strokeWidth={4} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                             </>
                         ) : (
                           <span className="flex items-center gap-2 italic">
@@ -215,8 +221,8 @@ export default function MealCard({ provider, meal }: MealCardProps) {
         </div>
       </div>
       
-      {/* Visual Accent */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -translate-y-16 translate-x-16 pointer-events-none" />
+      {/* Decorative Accent */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl -translate-y-12 translate-x-12 pointer-events-none group-hover:bg-primary/10 transition-colors" />
     </motion.div>
   );
 }
