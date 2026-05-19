@@ -117,7 +117,7 @@ export default function ProviderMenuPage() {
   const availableCount = meals.filter((m) => m.isAvailable).length;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 p-4 md:p-8 space-y-6">
+    <div className="flex flex-col min-h-screen bg-background p-4 md:p-8 space-y-6">
       {/* Page Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -412,10 +412,6 @@ function MealModal({
 
   const removePreview = (index: number) => {
     setPreviews(prev => prev.filter((_, i) => i !== index));
-    // If it was a new file, remove from files array too
-    // This is tricky because previews includes existing images.
-    // Let's just track which ones are new files.
-    // For simplicity, if index >= existingImages.length, it's a new file.
     const existingCount = meal?.images?.length || 0;
     if (index >= existingCount) {
         setFiles(prev => prev.filter((_, i) => i !== (index - existingCount)));
@@ -449,7 +445,6 @@ function MealModal({
         formData.append("images", file);
       });
 
-      // Filter and append kept existing image URLs (Cloudinary images that start with http/https)
       const existingImages = previews.filter(url => url.startsWith("http") || url.startsWith("https"));
       existingImages.forEach((url) => {
         formData.append("existingImages", url);
@@ -470,17 +465,17 @@ function MealModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-[2.5rem] w-full max-w-xl shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-background border border-border rounded-[2.5rem] w-full max-w-xl shadow-2xl max-h-[90vh] overflow-y-auto">
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-gray-800">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-border">
           <div>
-            <h2 className="text-xl font-black text-white">{isNew ? "Add New Creation" : "Refine Recipe"}</h2>
-            <p className="text-xs text-gray-500 font-medium mt-0.5">Fill in the details for your culinary masterpiece</p>
+            <h2 className="text-xl font-black text-foreground">{isNew ? "Add New Creation" : "Refine Recipe"}</h2>
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">Fill in the details for your culinary masterpiece</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-white w-10 h-10 rounded-full hover:bg-gray-800 flex items-center justify-center transition-all"
+            className="text-muted-foreground hover:text-foreground w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-all"
           >
             ✕
           </button>
@@ -491,10 +486,10 @@ function MealModal({
           
           {/* Image Upload Section */}
           <div className="space-y-3">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Meal Gallery (Max 5)</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Meal Gallery (Max 5)</label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {previews.map((src, i) => (
-                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-gray-800 bg-gray-800/50">
+                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-border bg-muted/50">
                   <img src={src} className="w-full h-full object-cover" />
                   <button 
                     type="button"
@@ -506,9 +501,9 @@ function MealModal({
                 </div>
               ))}
               {previews.length < 5 && (
-                <label className="aspect-square rounded-2xl border-2 border-dashed border-gray-800 hover:border-orange-500/50 hover:bg-orange-500/5 transition-all flex flex-col items-center justify-center cursor-pointer group">
-                  <Plus size={24} className="text-gray-600 group-hover:text-orange-500 transition-colors" />
-                  <span className="text-[10px] font-bold text-gray-600 mt-1">Upload</span>
+                <label className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-orange-500/50 hover:bg-orange-500/5 transition-all flex flex-col items-center justify-center cursor-pointer group">
+                  <Plus size={24} className="text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                  <span className="text-[10px] font-bold text-muted-foreground mt-1">Upload</span>
                   <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
                 </label>
               )}
@@ -517,31 +512,31 @@ function MealModal({
 
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Meal Name *</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Meal Name *</label>
               <input name="name" required value={form.name} onChange={handleChange}
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/50 transition-all"
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:border-orange-500/50 transition-all"
                 placeholder="e.g. Signature Truffle Pasta" />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Price (৳) *</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Price (৳) *</label>
               <input name="price" type="number" required min={1} step="0.01" value={form.price} onChange={handleChange}
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/50 transition-all" />
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:border-orange-500/50 transition-all" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Category *</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Category *</label>
               <select name="categoryId" required value={form.categoryId} onChange={handleChange}
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/50 transition-all appearance-none">
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:border-orange-500/50 transition-all appearance-none">
                 <option value="">Select Category</option>
                 {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Dietary Type</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Dietary Type</label>
               <select name="dietaryType" value={form.dietaryType} onChange={handleChange}
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/50 transition-all appearance-none">
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:border-orange-500/50 transition-all appearance-none">
                 <option value="">Not Specified</option>
                 <option value="VEG">Vegetarian</option>
                 <option value="NON_VEG">Non-Vegetarian</option>
@@ -551,33 +546,33 @@ function MealModal({
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Cuisine Style</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cuisine Style</label>
             <input name="cuisine" value={form.cuisine} onChange={handleChange}
-              className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/50 transition-all"
+              className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:border-orange-500/50 transition-all"
               placeholder="Bengali, Fusion, Mediterranean..." />
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500">Description</label>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground">Description</label>
             <textarea name="description" rows={3} value={form.description} onChange={handleChange}
-              className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 outline-none focus:border-orange-500/50 transition-all resize-none"
+              className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground outline-none focus:border-orange-500/50 transition-all resize-none"
               placeholder="Share the story behind this dish..." />
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-950 rounded-2xl border border-gray-800">
+          <div className="flex items-center justify-between p-4 bg-muted rounded-2xl border border-border">
              <div className="flex items-center gap-3">
-               <div className={`p-2 rounded-lg ${form.isAvailable ? 'bg-emerald-500/10 text-emerald-500' : 'bg-gray-800 text-gray-500'}`}>
+               <div className={`p-2 rounded-lg ${form.isAvailable ? 'bg-emerald-500/10 text-emerald-500' : 'bg-muted-foreground/10 text-muted-foreground'}`}>
                   <Power size={18} />
                </div>
                <div>
-                  <p className="text-sm font-bold text-gray-200">Available for Order</p>
-                  <p className="text-[10px] text-gray-500 font-medium">Instantly show/hide from customers</p>
+                  <p className="text-sm font-bold text-foreground">Available for Order</p>
+                  <p className="text-[10px] text-muted-foreground font-medium">Instantly show/hide from customers</p>
                </div>
              </div>
              <button
               type="button"
               onClick={() => setForm((p) => ({ ...p, isAvailable: !p.isAvailable }))}
-              className={`w-12 h-6 rounded-full transition-all relative ${form.isAvailable ? "bg-orange-500" : "bg-gray-800"}`}
+              className={`w-12 h-6 rounded-full transition-all relative ${form.isAvailable ? "bg-orange-500" : "bg-muted-foreground"}`}
             >
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-lg transition-all ${form.isAvailable ? "translate-x-7" : "translate-x-1"}`} />
             </button>
@@ -586,7 +581,7 @@ function MealModal({
           {/* Actions */}
           <div className="flex gap-4 pt-4">
             <Button type="button" onClick={onClose} variant="ghost"
-              className="flex-1 h-14 rounded-2xl border border-gray-800 text-gray-400 hover:bg-gray-800 font-bold transition-all">
+              className="flex-1 h-14 rounded-2xl border border-border text-muted-foreground hover:bg-muted font-bold transition-all">
               Cancel
             </Button>
             <Button type="submit" disabled={loading}
