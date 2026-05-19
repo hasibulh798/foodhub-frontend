@@ -50,7 +50,8 @@ export default function CategoryManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryIcon, setNewCategoryIcon] = useState("");
+  const [newCategoryIcon, setNewCategoryIcon] = useState<File | null>(null);
+  const [editCategoryIcon, setEditCategoryIcon] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -76,13 +77,16 @@ export default function CategoryManagement() {
     if (!newCategoryName.trim()) return;
     try {
       setIsLoading(true);
-      const created = await categoryServices.createCategory({ 
-        name: newCategoryName,
-        iconUrl: newCategoryIcon 
-      });
+      const formData = new FormData();
+      formData.append("name", newCategoryName);
+      if (newCategoryIcon) {
+        formData.append("icon", newCategoryIcon);
+      }
+      
+      const created = await categoryServices.createCategory(formData);
       setCategories((prev) => [...prev, created]);
       setNewCategoryName("");
-      setNewCategoryIcon("");
+      setNewCategoryIcon(null);
       setIsAddModalOpen(false);
       toast.success("Category created successfully");
     } catch (error: any) {
@@ -96,14 +100,18 @@ export default function CategoryManagement() {
     if (!selectedCategory || !selectedCategory.name.trim()) return;
     try {
       setIsLoading(true);
-      const updated = await categoryServices.updateCategory(selectedCategory.id, {
-        name: selectedCategory.name,
-        isActive: selectedCategory.isActive,
-        iconUrl: selectedCategory.iconUrl,
-      });
+      const formData = new FormData();
+      formData.append("name", selectedCategory.name);
+      formData.append("isActive", String(selectedCategory.isActive));
+      if (editCategoryIcon) {
+        formData.append("icon", editCategoryIcon);
+      }
+      
+      const updated = await categoryServices.updateCategory(selectedCategory.id, formData);
       setCategories((prev) =>
         prev.map((c) => (c.id === updated.id ? updated : c))
       );
+      setEditCategoryIcon(null);
       setIsEditModalOpen(false);
       toast.success("Category updated successfully");
     } catch (error: any) {
@@ -165,12 +173,17 @@ export default function CategoryManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="icon">Icon URL</Label>
+                <Label htmlFor="icon">Icon</Label>
                 <Input
                   id="icon"
-                  placeholder="https://example.com/icon.png"
-                  value={newCategoryIcon}
-                  onChange={(e) => setNewCategoryIcon(e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setNewCategoryIcon(file);
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -309,11 +322,17 @@ export default function CategoryManagement() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-icon">Icon URL</Label>
+              <Label htmlFor="edit-icon">Upload New Icon</Label>
               <Input
                 id="edit-icon"
-                value={selectedCategory?.iconUrl || ""}
-                onChange={(e) => setSelectedCategory(prev => prev ? { ...prev, iconUrl: e.target.value } : null)}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setEditCategoryIcon(file);
+                  }
+                }}
               />
             </div>
             <div className="flex items-center space-x-2">

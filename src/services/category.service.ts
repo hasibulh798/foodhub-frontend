@@ -25,10 +25,10 @@ export const categoryServices = {
     return res.data;
   },
 
-  createCategory: async (data: { name: string; iconUrl?: string }) => {
+  createCategory: async (data: any) => {
     const res = await fetcher('/categories', {
       method: "POST",
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
     if (!res.success) {
       throw new Error(res.message || "Failed to create category");
@@ -36,10 +36,10 @@ export const categoryServices = {
     return res.data;
   },
 
-  updateCategory: async (catId: string, data: { name?: string; isActive?: boolean; iconUrl?: string }) => {
+  updateCategory: async (catId: string, data: any) => {
     const res = await fetcher(`/categories/${catId}`, {
       method: "PATCH",
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
     if (!res.success) {
       throw new Error(res.message || "Failed to update category");
