@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 const DIETARY_META: Record<DietaryType, { label: string; color: string }> = {
-  VEG:     { label: "Veg",     color: "bg-green-500/10 text-green-400 border-green-500/20" },
-  NON_VEG: { label: "Non-Veg", color: "bg-red-500/10 text-red-400 border-red-500/20" },
-  VEGAN:   { label: "Vegan",   color: "bg-teal-500/10 text-teal-400 border-teal-500/20" },
+  VEG:     { label: "Veg",     color: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20" },
+  NON_VEG: { label: "Non-Veg", color: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20" },
+  VEGAN:   { label: "Vegan",   color: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20" },
 };
 
 import {
@@ -121,8 +121,8 @@ export default function ProviderMenuPage() {
       {/* Page Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Menu Management</h1>
-          <p className="text-gray-500 font-medium">Control your offerings and availability</p>
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">Menu Management</h1>
+          <p className="text-muted-foreground font-medium">Control your offerings and availability</p>
         </div>
         <Button 
           onClick={() => setModal({ type: "add" })}
@@ -136,39 +136,39 @@ export default function ProviderMenuPage() {
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Search */}
         <div className="relative w-full max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <input
             value={search}
             onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
             placeholder="Search by name or cuisine..."
-            className="w-full bg-gray-900 border border-gray-800 rounded-2xl pl-12 pr-4 py-3 text-sm text-gray-200 placeholder-gray-600 outline-none focus:border-orange-500/50 transition-all focus:ring-4 focus:ring-orange-500/5"
+            className="w-full bg-muted/50 dark:bg-zinc-900 border border-border rounded-2xl pl-12 pr-4 py-3 text-sm text-foreground placeholder-muted-foreground outline-none focus:border-orange-500/50 transition-all focus:ring-4 focus:ring-orange-500/5"
           />
         </div>
 
         <div className="flex items-center gap-4">
-           <Badge variant="outline" className="px-4 py-1.5 rounded-full border-gray-800 text-gray-400 bg-gray-900/50">
+           <Badge variant="outline" className="px-4 py-1.5 rounded-full border-border text-muted-foreground bg-muted/50">
              {availableCount} Active Items
            </Badge>
         </div>
       </div>
 
       {/* Menu Table */}
-      <div className="bg-gray-900/40 border border-gray-800/60 rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-xl">
+      <div className="bg-card border border-border rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-xl">
         <Table>
-          <TableHeader className="bg-gray-900/60">
-            <TableRow className="border-gray-800/60 hover:bg-transparent">
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Meal Info</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Category</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Status</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Price</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8 text-right">Actions</TableHead>
+          <TableHeader className="bg-muted/40 dark:bg-zinc-900/60">
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Meal Info</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Category</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Status</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Price</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               [...Array(5)].map((_, i) => (
-                <TableRow key={i} className="border-gray-800/40">
-                  <TableCell colSpan={5} className="py-8 px-8"><div className="h-12 w-full bg-gray-800/50 animate-pulse rounded-xl" /></TableCell>
+                <TableRow key={i} className="border-border">
+                  <TableCell colSpan={5} className="py-8 px-8"><div className="h-12 w-full bg-muted animate-pulse rounded-xl" /></TableCell>
                 </TableRow>
               ))
             ) : currentMeals.length === 0 ? (
@@ -184,10 +184,10 @@ export default function ProviderMenuPage() {
               currentMeals.map((meal) => {
                 const categoryName = categories.find((c) => c.id === meal.categoryId)?.name;
                 return (
-                  <TableRow key={meal.id} className={`border-gray-800/40 hover:bg-white/5 transition-colors group ${!meal.isAvailable && 'opacity-60'}`}>
+                  <TableRow key={meal.id} className={`border-border hover:bg-muted/50 transition-colors group ${!meal.isAvailable && 'opacity-60'}`}>
                     <TableCell className="px-8 py-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gray-800 overflow-hidden shrink-0 border border-gray-700/50">
+                        <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden shrink-0 border border-border">
                           {meal.images && meal.images.length > 0 ? (
                             <img src={meal.images[0]} alt={meal.name} className="w-full h-full object-cover" />
                           ) : (
@@ -195,13 +195,13 @@ export default function ProviderMenuPage() {
                           )}
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-gray-200">{meal.name}</span>
-                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{meal.cuisine || "Generic"}</span>
+                          <span className="text-sm font-bold text-foreground">{meal.name}</span>
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">{meal.cuisine || "Generic"}</span>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="px-8 py-6">
-                      <Badge variant="secondary" className="rounded-lg bg-gray-800 text-gray-400 border-none font-bold text-[10px]">
+                      <Badge variant="secondary" className="rounded-lg bg-muted text-muted-foreground border-none font-bold text-[10px]">
                         {categoryName || "Uncategorized"}
                       </Badge>
                     </TableCell>
@@ -210,8 +210,8 @@ export default function ProviderMenuPage() {
                         onClick={() => toggleAvailability(meal)}
                         className={`flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border transition-all ${
                           meal.isAvailable 
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
-                            : "bg-gray-800 text-gray-500 border-gray-700"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
+                            : "bg-muted text-muted-foreground border-border"
                         }`}
                       >
                         <Power size={10} />
@@ -219,7 +219,7 @@ export default function ProviderMenuPage() {
                       </button>
                     </TableCell>
                     <TableCell className="px-8 py-6">
-                      <span className="text-sm font-black text-orange-400 tabular-nums">৳{meal.price}</span>
+                      <span className="text-sm font-black text-orange-500 dark:text-orange-400 tabular-nums">৳{meal.price}</span>
                     </TableCell>
                     <TableCell className="px-8 py-6 text-right">
                        <div className="flex justify-end gap-2">
@@ -227,7 +227,7 @@ export default function ProviderMenuPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => setModal({ type: "edit", meal })}
-                          className="w-9 h-9 rounded-xl bg-gray-800 hover:bg-blue-500/10 hover:text-blue-400 transition-all"
+                          className="w-9 h-9 rounded-xl bg-muted hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 transition-all text-muted-foreground"
                         >
                           <Edit size={14} />
                         </Button>
@@ -235,7 +235,7 @@ export default function ProviderMenuPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => deleteMeal(meal.id)}
-                          className="w-9 h-9 rounded-xl bg-gray-800 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                          className="w-9 h-9 rounded-xl bg-muted hover:bg-red-500/10 hover:text-red-650 dark:hover:text-red-400 transition-all text-muted-foreground"
                         >
                           <Trash2 size={14} />
                         </Button>
@@ -257,7 +257,7 @@ export default function ProviderMenuPage() {
               <PaginationItem>
                 <PaginationPrevious 
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  className={`rounded-xl border-gray-800 font-bold ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                  className={`rounded-xl border-border font-bold ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
                 />
               </PaginationItem>
               {[...Array(totalPages)].map((_, i) => (
@@ -265,7 +265,7 @@ export default function ProviderMenuPage() {
                   <PaginationLink
                     isActive={currentPage === i + 1}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`rounded-xl border-gray-800 font-bold ${currentPage === i + 1 ? 'bg-orange-500 text-white' : 'cursor-pointer'}`}
+                    className={`rounded-xl border-border font-bold ${currentPage === i + 1 ? 'bg-orange-500 text-white' : 'cursor-pointer'}`}
                   >
                     {i + 1}
                   </PaginationLink>
@@ -274,7 +274,7 @@ export default function ProviderMenuPage() {
               <PaginationItem>
                 <PaginationNext 
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  className={`rounded-xl border-gray-800 font-bold ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                  className={`rounded-xl border-border font-bold ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
                 />
               </PaginationItem>
             </PaginationContent>
@@ -309,14 +309,14 @@ function MealRow({
   const categoryName = categories.find((c) => c.id === meal.categoryId)?.name;
 
   return (
-    <div className={`bg-gray-900 border rounded-xl p-4 flex gap-3 transition hover:border-gray-700 ${
-      meal.isAvailable ? "border-gray-800" : "border-gray-800 opacity-50"
+    <div className={`bg-card border rounded-xl p-4 flex gap-3 transition hover:border-muted-foreground/30 ${
+      meal.isAvailable ? "border-border" : "border-border opacity-50"
     }`}>
       {/* Image */}
       {meal.images && meal.images.length > 0 ? (
         <img src={meal.images[0]} alt={meal.name} className="w-16 h-16 rounded-lg object-cover shrink-0" />
       ) : (
-        <div className="w-16 h-16 rounded-lg bg-gray-800 flex items-center justify-center text-2xl shrink-0">
+        <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center text-2xl shrink-0">
           🍽
         </div>
       )}
@@ -325,10 +325,10 @@ function MealRow({
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="font-medium text-gray-200 text-sm truncate">{meal.name}</p>
+            <p className="font-medium text-foreground text-sm truncate">{meal.name}</p>
             <div className="flex items-center gap-1.5 mt-1 flex-wrap">
               {categoryName && (
-                <span className="text-[10px] text-gray-600 bg-gray-800 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                   {categoryName}
                 </span>
               )}
@@ -338,11 +338,11 @@ function MealRow({
                 </span>
               )}
               {meal.cuisine && (
-                <span className="text-[10px] text-gray-600">{meal.cuisine}</span>
+                <span className="text-[10px] text-muted-foreground">{meal.cuisine}</span>
               )}
             </div>
           </div>
-          <p className="text-orange-400 font-bold font-mono text-sm shrink-0">৳{meal.price}</p>
+          <p className="text-orange-500 dark:text-orange-400 font-bold font-mono text-sm shrink-0">৳{meal.price}</p>
         </div>
 
         {/* Actions */}
@@ -351,23 +351,24 @@ function MealRow({
             onClick={() => onToggle(meal)}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border transition ${
               meal.isAvailable
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/15"
-                : "bg-gray-800 text-gray-500 border-gray-700 hover:bg-gray-700"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/15"
+                : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
             }`}
           >
-            <span className={`w-1.5 h-1.5 rounded-full ${meal.isAvailable ? "bg-emerald-400" : "bg-gray-600"}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${meal.isAvailable ? "bg-emerald-500 dark:bg-emerald-400" : "bg-muted-foreground"}`} />
             {meal.isAvailable ? "Available" : "Unavailable"}
           </button>
           <button
             onClick={onEdit}
-            className="px-3 py-1 rounded-lg text-xs border border-gray-700 bg-gray-800 text-gray-400 hover:text-gray-200 hover:bg-gray-700 transition"
+            className="px-3 py-1 rounded-lg text-xs border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition"
           >
             Edit
           </button>
           <button
             onClick={onDelete}
-            className="px-3 py-1 rounded-lg text-xs border border-gray-800 text-gray-600 hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition"
+            className="px-3 py-1 rounded-lg text-xs border border-border text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition"
           >
+            Delete
           </button>
         </div>
       </div>

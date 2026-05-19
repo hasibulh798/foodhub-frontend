@@ -50,14 +50,14 @@ export default function CTA() {
       ref={sectionRef}
       className="relative py-20 sm:py-28 md:py-36 overflow-hidden"
     >
-      {/* Background — Rich Dark Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
+      {/* Background — Rich Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" />
 
       {/* Decorative Mesh Grid */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.03]"
         style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)`,
           backgroundSize: "40px 40px",
         }}
       />
@@ -98,7 +98,7 @@ export default function CTA() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 mb-6 sm:mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 mb-6 sm:mb-8"
           >
             <Sparkles size={14} />
             <span className="text-xs sm:text-sm font-bold tracking-wide">
@@ -111,7 +111,7 @@ export default function CTA() {
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] tracking-tight mb-6 sm:mb-8"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-zinc-900 dark:text-white leading-[1.1] tracking-tight mb-6 sm:mb-8"
           >
             Your Next Meal Is{" "}
             <span className="relative inline-block">
@@ -133,7 +133,7 @@ export default function CTA() {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.25 }}
-            className="text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-light"
+            className="text-zinc-600 dark:text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-light"
           >
             From local favorites to gourmet kitchens — discover, order, and
             enjoy fresh meals delivered to your doorstep in minutes.
@@ -159,7 +159,7 @@ export default function CTA() {
             </Link>
             <Link
               href="/signup"
-              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 text-white/90 hover:text-white font-semibold px-8 sm:px-10 py-4 sm:py-5 rounded-2xl sm:rounded-full border border-white/15 hover:border-white/30 hover:bg-white/5 backdrop-blur-sm transition-all text-base sm:text-lg"
+              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 text-zinc-800 dark:text-white/90 hover:text-zinc-900 dark:hover:text-white font-semibold px-8 sm:px-10 py-4 sm:py-5 rounded-2xl sm:rounded-full border border-zinc-200 dark:border-white/15 hover:border-zinc-300 dark:hover:border-white/30 hover:bg-black/5 dark:hover:bg-white/5 backdrop-blur-sm transition-all text-base sm:text-lg"
             >
               <Heart size={18} />
               Join FoodHub
@@ -180,7 +180,7 @@ export default function CTA() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.6 + i * 0.1 }}
-              className="group relative bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-500 cursor-default"
+              className="group relative bg-black/[0.02] dark:bg-white/[0.03] backdrop-blur-sm border border-black/[0.06] dark:border-white/[0.06] rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] hover:border-black/[0.12] dark:hover:border-white/[0.12] transition-all duration-500 cursor-default"
             >
               {/* Icon */}
               <div
@@ -190,10 +190,10 @@ export default function CTA() {
               </div>
 
               {/* Text */}
-              <h3 className="text-white font-bold text-sm sm:text-base md:text-lg mb-1 sm:mb-2 tracking-tight">
+              <h3 className="text-zinc-950 dark:text-white font-bold text-sm sm:text-base md:text-lg mb-1 sm:mb-2 tracking-tight">
                 {item.title}
               </h3>
-              <p className="text-gray-500 text-xs sm:text-sm font-medium leading-relaxed">
+              <p className="text-zinc-500 dark:text-gray-500 text-xs sm:text-sm font-medium leading-relaxed">
                 {item.desc}
               </p>
 
@@ -211,7 +211,7 @@ export default function CTA() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 1, delay: 1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-white/[0.06]"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-black/[0.06] dark:border-white/[0.06]"
         >
           {/* Avatars Stack */}
           <div className="flex items-center gap-3">
@@ -226,7 +226,7 @@ export default function CTA() {
                   key={i}
                   src={src}
                   alt=""
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-gray-900 object-cover"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-white dark:border-gray-900 object-cover"
                 />
               ))}
             </div>
@@ -240,16 +240,16 @@ export default function CTA() {
                   />
                 ))}
               </div>
-              <p className="text-gray-500 text-[10px] sm:text-xs font-medium mt-0.5">
-                Trusted by <span className="text-white font-bold">10,000+</span>{" "}
+              <p className="text-zinc-500 dark:text-gray-500 text-[10px] sm:text-xs font-medium mt-0.5">
+                Trusted by <span className="text-zinc-950 dark:text-white font-bold">10,000+</span>{" "}
                 customers
               </p>
             </div>
           </div>
 
-          <div className="hidden sm:block w-px h-10 bg-white/10" />
+          <div className="hidden sm:block w-px h-10 bg-black/10 dark:bg-white/10" />
 
-          <div className="flex items-center gap-2 text-gray-500 text-xs sm:text-sm font-medium">
+          <div className="flex items-center gap-2 text-zinc-500 dark:text-gray-500 text-xs sm:text-sm font-medium">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             Available in your area — Order now!
           </div>

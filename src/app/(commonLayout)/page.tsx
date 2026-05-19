@@ -26,8 +26,8 @@ export default function HomePage() {
       <ReviewSection />
       <BlogSection />
       <FAQSection />
-      <NewsletterSection />
       <CTASection />
+      <NewsletterSection />
     </div>
   );
 }

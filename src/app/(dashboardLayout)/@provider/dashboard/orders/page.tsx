@@ -20,33 +20,33 @@ const STATUS_META: Record<
 > = {
   PENDING: {
     label: "Pending",
-    color: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    dot: "bg-amber-400",
+    color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    dot: "bg-amber-500 dark:bg-amber-400",
   },
   CONFIRMED: {
     label: "Confirmed",
-    color: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    dot: "bg-blue-400",
+    color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    dot: "bg-blue-500 dark:bg-blue-400",
   },
   PREPARING: {
     label: "Preparing",
-    color: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-    dot: "bg-violet-400",
+    color: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+    dot: "bg-violet-500 dark:bg-violet-400",
   },
   OUT_FOR_DELIVERY: {
     label: "Out for Delivery",
-    color: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-    dot: "bg-orange-400",
+    color: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20",
+    dot: "bg-orange-500 dark:bg-orange-400",
   },
   DELIVERED: {
     label: "Delivered",
-    color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    dot: "bg-emerald-400",
+    color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    dot: "bg-emerald-500 dark:bg-emerald-400",
   },
   CANCELLED: {
     label: "Cancelled",
-    color: "bg-red-500/10 text-red-400 border-red-500/20",
-    dot: "bg-red-400",
+    color: "bg-red-500/10 text-red-650 dark:text-red-400 border-red-500/20",
+    dot: "bg-red-500 dark:bg-red-400",
   },
 };
 
@@ -71,6 +71,21 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Phone, RefreshCcw } from "lucide-react";
 
 type FilterStatus = OrderStatus | "ALL";
+
+const getNextStatus = (currentStatus: OrderStatus): OrderStatus | null => {
+  switch (currentStatus) {
+    case "PENDING":
+      return "CONFIRMED";
+    case "CONFIRMED":
+      return "PREPARING";
+    case "PREPARING":
+      return "OUT_FOR_DELIVERY";
+    case "OUT_FOR_DELIVERY":
+      return "DELIVERED";
+    default:
+      return null;
+  }
+};
 
 export default function ProviderOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -124,17 +139,17 @@ export default function ProviderOrdersPage() {
     orders.filter((o) => o.status === s).length;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950 p-4 md:p-8 space-y-6">
+    <div className="flex flex-col min-h-screen bg-background p-4 md:p-8 space-y-6">
       {/* Page Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Order Management</h1>
-          <p className="text-gray-500 font-medium">Handle your kitchen pipeline efficiently</p>
+          <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">Order Management</h1>
+          <p className="text-muted-foreground font-medium">Handle your kitchen pipeline efficiently</p>
         </div>
         <Button 
           variant="outline" 
           onClick={fetchOrders}
-          className="rounded-xl border-gray-800 hover:bg-gray-900 font-bold"
+          className="rounded-xl border-border hover:bg-muted font-bold text-muted-foreground hover:text-foreground"
         >
           <RefreshCcw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh Data
@@ -142,7 +157,7 @@ export default function ProviderOrdersPage() {
       </header>
 
       {/* Status Filter Tabs */}
-      <div className="flex gap-2 flex-wrap bg-gray-900/50 p-2 rounded-2xl border border-gray-800/50 w-fit">
+      <div className="flex gap-2 flex-wrap bg-muted/50 p-2 rounded-2xl border border-border w-fit">
         <FilterPill
           label="All"
           count={orders.length}
@@ -171,22 +186,22 @@ export default function ProviderOrdersPage() {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-gray-900/40 border border-gray-800/60 rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-xl">
+      <div className="bg-card border border-border rounded-[2rem] overflow-hidden backdrop-blur-sm shadow-xl">
         <Table>
-          <TableHeader className="bg-gray-900/60">
-            <TableRow className="border-gray-800/60 hover:bg-transparent">
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Reference</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Customer</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Status</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8">Amount</TableHead>
-              <TableHead className="text-[10px] uppercase font-black tracking-widest text-gray-500 py-6 px-8 text-right">Actions</TableHead>
+          <TableHeader className="bg-muted/40 dark:bg-zinc-900/60">
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Reference</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Customer</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Status</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8">Amount</TableHead>
+              <TableHead className="text-[10px] uppercase font-black tracking-widest text-muted-foreground py-6 px-8 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               [...Array(5)].map((_, i) => (
-                <TableRow key={i} className="border-gray-800/40">
-                  <TableCell colSpan={5} className="py-8 px-8"><div className="h-12 w-full bg-gray-800/50 animate-pulse rounded-xl" /></TableCell>
+                <TableRow key={i} className="border-border">
+                  <TableCell colSpan={5} className="py-8 px-8"><div className="h-12 w-full bg-muted animate-pulse rounded-xl" /></TableCell>
                 </TableRow>
               ))
             ) : currentOrders.length === 0 ? (
@@ -202,16 +217,16 @@ export default function ProviderOrdersPage() {
               currentOrders.map((order) => {
                 const meta = STATUS_META[order.status];
                 return (
-                  <TableRow key={order.id} className="border-gray-800/40 hover:bg-white/5 transition-colors group">
+                  <TableRow key={order.id} className="border-border hover:bg-muted/50 transition-colors group">
                     <TableCell className="px-8 py-6">
-                      <span className="font-mono text-xs font-bold text-gray-500 group-hover:text-white transition-colors">#{order.id.slice(-8).toUpperCase()}</span>
+                      <span className="font-mono text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors">#{order.id.slice(-8).toUpperCase()}</span>
                     </TableCell>
                     <TableCell className="px-8 py-6">
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-gray-200">{order.customer?.name ?? "Guest User"}</span>
+                        <span className="text-sm font-bold text-foreground">{order.customer?.name ?? "Guest User"}</span>
                         <div className="flex items-center gap-4 mt-1">
-                          <span className="flex items-center gap-1 text-[10px] text-gray-500"><Phone size={10} /> {order.phone}</span>
-                          <span className="flex items-center gap-1 text-[10px] text-gray-500 truncate max-w-[150px]"><MapPin size={10} /> {order.deliveryAddress}</span>
+                          <span className="flex items-center gap-1 text-[10px] text-muted-foreground"><Phone size={10} /> {order.phone}</span>
+                          <span className="flex items-center gap-1 text-[10px] text-muted-foreground truncate max-w-[150px]"><MapPin size={10} /> {order.deliveryAddress}</span>
                         </div>
                       </div>
                     </TableCell>
@@ -222,22 +237,36 @@ export default function ProviderOrdersPage() {
                       </div>
                     </TableCell>
                     <TableCell className="px-8 py-6">
-                      <span className="text-sm font-black text-orange-400 tabular-nums">৳{order.totalAmount}</span>
+                      <span className="text-sm font-black text-orange-500 dark:text-orange-400 tabular-nums">৳{order.totalAmount}</span>
                     </TableCell>
                     <TableCell className="px-8 py-6 text-right">
                        <div className="flex justify-end gap-2">
-                        {ORDER_STATUSES.filter(s => s !== order.status && s !== "PENDING").slice(0, 2).map(s => (
+                        {(() => {
+                          const nextStatus = getNextStatus(order.status);
+                          if (!nextStatus) return null;
+                          return (
+                            <Button
+                              key={nextStatus}
+                              size="sm"
+                              onClick={() => updateStatus(order.id, nextStatus)}
+                              disabled={updatingId === order.id}
+                              className="text-[10px] font-black uppercase tracking-tighter bg-primary hover:bg-primary/90 text-white rounded-lg h-8 px-4"
+                            >
+                              Mark {STATUS_META[nextStatus].label}
+                            </Button>
+                          );
+                        })()}
+                        {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
                           <Button
-                            key={s}
                             size="sm"
                             variant="ghost"
-                            onClick={() => updateStatus(order.id, s)}
+                            onClick={() => updateStatus(order.id, "CANCELLED")}
                             disabled={updatingId === order.id}
-                            className="text-[10px] font-black uppercase tracking-tighter bg-gray-800 hover:bg-gray-700 rounded-lg h-8"
+                            className="text-[10px] font-black uppercase tracking-tighter bg-muted hover:bg-red-500/10 hover:text-red-650 dark:hover:text-red-400 border border-border hover:border-red-500/20 rounded-lg h-8"
                           >
-                            Mark {STATUS_META[s].label}
+                            Cancel
                           </Button>
-                        ))}
+                        )}
                        </div>
                     </TableCell>
                   </TableRow>
@@ -256,7 +285,7 @@ export default function ProviderOrdersPage() {
               <PaginationItem>
                 <PaginationPrevious 
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  className={`rounded-xl border-gray-800 font-bold ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                  className={`rounded-xl border-border font-bold ${currentPage === 1 ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
                 />
               </PaginationItem>
               {[...Array(totalPages)].map((_, i) => (
@@ -264,7 +293,7 @@ export default function ProviderOrdersPage() {
                   <PaginationLink
                     isActive={currentPage === i + 1}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`rounded-xl border-gray-800 font-bold ${currentPage === i + 1 ? 'bg-orange-500 text-white' : 'cursor-pointer'}`}
+                    className={`rounded-xl border-border font-bold ${currentPage === i + 1 ? 'bg-orange-500 text-white' : 'cursor-pointer'}`}
                   >
                     {i + 1}
                   </PaginationLink>
@@ -273,7 +302,7 @@ export default function ProviderOrdersPage() {
               <PaginationItem>
                 <PaginationNext 
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  className={`rounded-xl border-gray-800 font-bold ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
+                  className={`rounded-xl border-border font-bold ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`}
                 />
               </PaginationItem>
             </PaginationContent>
@@ -303,13 +332,13 @@ function FilterPill({
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition ${
         active
           ? "bg-orange-500 text-white border-orange-500"
-          : "bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-gray-200"
+          : "bg-muted text-muted-foreground border-border hover:border-muted-foreground/30 hover:text-foreground"
       }`}
     >
       {dot && <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />}
       {label}
       <span
-        className={`font-mono ${active ? "text-orange-200" : "text-gray-600"}`}
+        className={`font-mono ${active ? "text-orange-100" : "text-muted-foreground/50"}`}
       >
         {count}
       </span>
@@ -331,12 +360,12 @@ function OrderCard({
 
   return (
     <div
-      className={`bg-gray-900 border rounded-xl transition ${updating ? "opacity-60 pointer-events-none" : "border-gray-800 hover:border-gray-700"}`}
+      className={`bg-card border rounded-xl transition ${updating ? "opacity-60 pointer-events-none" : "border-border hover:border-muted-foreground/30"}`}
     >
       {/* Order Header */}
-      <div className="flex items-start justify-between px-5 pt-4 pb-3 border-b border-gray-800">
+      <div className="flex items-start justify-between px-5 pt-4 pb-3 border-b border-border">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-xs text-gray-600">
+          <span className="font-mono text-xs text-muted-foreground">
             #{order.id.slice(0, 8).toUpperCase()}
           </span>
           <span
@@ -348,8 +377,8 @@ function OrderCard({
           <span
             className={`text-xs px-2 py-0.5 rounded border ${
               order.paymentMethod === "COD"
-                ? "bg-gray-800 text-gray-400 border-gray-700"
-                : "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                ? "bg-muted text-muted-foreground border-border"
+                : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
             }`}
           >
             {order.paymentMethod}
@@ -357,18 +386,18 @@ function OrderCard({
           <span
             className={`text-xs px-2 py-0.5 rounded border ${
               order.paymentStatus === "PAID"
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
             }`}
           >
             {order.paymentStatus === "PAID" ? "Paid" : "Unpaid"}
           </span>
         </div>
         <div className="text-right">
-          <p className="text-orange-400 font-bold font-mono text-lg">
+          <p className="text-orange-550 dark:text-orange-400 font-bold font-mono text-lg">
             ৳{order.totalAmount}
           </p>
-          <p className="text-[10px] text-gray-600 mt-0.5">
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             {createdAt.toLocaleTimeString("en-BD", {
               hour: "2-digit",
               minute: "2-digit",
@@ -385,32 +414,32 @@ function OrderCard({
       {/* Customer + Items */}
       <div className="px-5 py-3 grid grid-cols-2 gap-4">
         <div>
-          <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
             Customer
           </p>
-          <p className="text-sm font-medium text-gray-200">
+          <p className="text-sm font-medium text-foreground">
             {order.customer?.name ?? "—"}
           </p>
-          <p className="text-xs text-gray-500 mt-0.5">{order.phone}</p>
-          <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+          <p className="text-xs text-muted-foreground mt-0.5">{order.phone}</p>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
             {order.deliveryAddress}
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
             Items
           </p>
           <div className="space-y-1">
             {order.orderItems?.map((item) => (
               <div key={item.id} className="flex items-center justify-between">
-                <span className="text-sm text-gray-300">{item.meal?.name}</span>
-                <span className="text-xs font-mono text-gray-500">
+                <span className="text-sm text-foreground">{item.meal?.name}</span>
+                <span className="text-xs font-mono text-muted-foreground">
                   ×{item.quantity}
                 </span>
               </div>
             ))}
           </div>
-          <div className="mt-2 pt-2 border-t border-gray-800 flex justify-between text-xs text-gray-500">
+          <div className="mt-2 pt-2 border-t border-border flex justify-between text-xs text-muted-foreground">
             <span>Subtotal</span>
             <span className="font-mono">৳{order.subtotal}</span>
           </div>
@@ -420,26 +449,30 @@ function OrderCard({
       {/* Status Actions */}
       {order.status !== "DELIVERED" && order.status !== "CANCELLED" && (
         <div className="px-5 pb-4">
-          <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">
             Update Status
           </p>
           <div className="flex gap-2 flex-wrap">
-            {ORDER_STATUSES.map((s) => (
-              <button
-                key={s}
-                onClick={() => onStatusChange(order.id, s)}
-                disabled={order.status === s}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${
-                  order.status === s
-                    ? "bg-orange-500/15 text-orange-400 border-orange-500/25 cursor-default"
-                    : s === "CANCELLED"
-                      ? "bg-gray-800 text-gray-500 border-gray-700 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20"
-                      : "bg-gray-800 text-gray-400 border-gray-700 hover:bg-gray-700 hover:text-gray-200"
-                }`}
-              >
-                {updating ? "..." : STATUS_META[s].label}
-              </button>
-            ))}
+            {(() => {
+              const nextStatus = getNextStatus(order.status);
+              if (!nextStatus) return null;
+              return (
+                <button
+                  onClick={() => onStatusChange(order.id, nextStatus)}
+                  disabled={updating}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold border border-transparent bg-primary text-white hover:bg-primary/90 transition"
+                >
+                  {updating ? "..." : `Mark ${STATUS_META[nextStatus].label}`}
+                </button>
+              );
+            })()}
+            <button
+              onClick={() => onStatusChange(order.id, "CANCELLED")}
+              disabled={updating}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-650 dark:hover:text-red-400 hover:border-red-500/20 transition"
+            >
+              {updating ? "..." : "Cancel"}
+            </button>
           </div>
         </div>
       )}
