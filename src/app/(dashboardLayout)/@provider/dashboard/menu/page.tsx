@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Plus, Edit, Trash2, Power } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Power, AlertTriangle } from "lucide-react";
 
 type ModalState =
   | { type: "add" }
@@ -41,6 +41,7 @@ type ModalState =
 export default function ProviderMenuPage() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<ModalState>(null);
   const [search, setSearch] = useState("");
@@ -56,13 +57,15 @@ export default function ProviderMenuPage() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [mealsRes, catsRes] = await Promise.all([
+      const [mealsRes, catsRes, profileRes] = await Promise.all([
         providerServices.getMyMeals(),
-        categoryServices.getAllCategories()
+        categoryServices.getAllCategories(),
+        providerServices.getMyProfile().catch(() => null)
       ]);
      
       setMeals(mealsRes);
       setCategories(catsRes);
+      setProfile(profileRes);
       
     } catch {
       toast.error("Load failed");
@@ -125,13 +128,28 @@ export default function ProviderMenuPage() {
           <p className="text-muted-foreground font-medium">Control your offerings and availability</p>
         </div>
         <Button 
-          onClick={() => setModal({ type: "add" })}
+          onClick={() => {
+            if (profile && !profile.isVerified) {
+              toast.error("Your restaurant must be verified before you can add new meals.");
+              return;
+            }
+            setModal({ type: "add" });
+          }}
           className="rounded-xl bg-orange-500 hover:bg-orange-600 font-bold px-6 py-6 shadow-lg shadow-orange-500/20 transition-all active:scale-95"
         >
           <Plus size={18} className="mr-2" />
           Add New Meal
         </Button>
       </header>
+
+      {profile && !profile.isVerified && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3 text-amber-600 dark:text-amber-400">
+          <AlertTriangle className="shrink-0" size={20} />
+          <div className="text-sm font-semibold">
+            Your restaurant profile is not verified yet. You cannot add new meals until verification is complete.
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         {/* Search */}
