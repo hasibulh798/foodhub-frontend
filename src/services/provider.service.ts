@@ -8,7 +8,7 @@ export const providerServices = {
       const res = await fetcher(`/providers`, {
         method: "POST",
         cache: "no-store",
-        body: JSON.stringify(data),
+        body: data instanceof FormData ? data : JSON.stringify(data),
       });
 
       if (!res.success) {

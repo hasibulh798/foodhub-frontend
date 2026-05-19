@@ -68,7 +68,7 @@ export function RestaurantForm2() {
 
         const res = await providerServices.createProvider(formData);
         if(!res.data){
-          toast.error("Registration failed. Please verify your details.", { id: toastId });
+          toast.error(res.error || "Registration failed. Please verify your details.", { id: toastId });
           return;
         }
         toast.success("Welcome to the Food Hub family!", { id: toastId });
