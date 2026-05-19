@@ -24,7 +24,8 @@ export default function FeaturedRestaurantsSection() {
       try {
         const res = await providerServices.getProviders();
         const restaurantData = Array.isArray(res) ? res : (res?.data || []);
-        setRestaurants(restaurantData.slice(0, 3)); 
+        const verifiedRestaurants = restaurantData.filter((r: Restaurant) => r.isVerified);
+        setRestaurants(verifiedRestaurants.slice(0, 3)); 
       } catch (error) {
         console.error("Failed to fetch restaurants:", error);
       } finally {

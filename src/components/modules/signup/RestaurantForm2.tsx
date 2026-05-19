@@ -23,7 +23,7 @@ const formSchema = z.object({
   phone: z.string().min(11, "Valid contact number required"),
   businessName: z.string().min(3, "Restaurant name is required"),
   address: z.string().min(3, "Operating address is required"),
-  logoUrl: z.string().url("Valid logo URL required"),
+  logoUrl: z.any().refine((file) => file instanceof File, "Brand logo file is required"),
   deliveryFee: z.number().min(0, "Delivery fee must be 0 or more"),
 });
 
@@ -48,7 +48,7 @@ export function RestaurantForm2() {
       phone: "",
       businessName: "",
       address: "",
-      logoUrl: "",
+      logoUrl: null as File | null,
       deliveryFee: 60,
     },
     validators: {
@@ -57,7 +57,16 @@ export function RestaurantForm2() {
     onSubmit: async ({ value }) => {
       const toastId = toast.loading("Registering your culinary brand...");
       try {
-        const res = await providerServices.createProvider(value);
+        const formData = new FormData();
+        Object.entries(value).forEach(([key, val]) => {
+          if (key === 'logoUrl' && val instanceof File) {
+            formData.append('logo', val);
+          } else if (val !== null && val !== undefined) {
+            formData.append(key, String(val));
+          }
+        });
+
+        const res = await providerServices.createProvider(formData);
         if(!res.data){
           toast.error("Registration failed. Please verify your details.", { id: toastId });
           return;
@@ -245,11 +254,15 @@ export function RestaurantForm2() {
                                 <Input
                                     id={field.name}
                                     name={field.name}
-                                    type="text"
-                                    placeholder="https://..."
-                                    value={field.state.value}
-                                    onChange={(e) => field.handleChange(e.target.value)}
-                                    className="h-14 pl-12 rounded-2xl border-border/50 bg-muted/30 focus:bg-background focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-sm"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        field.handleChange(file);
+                                      }
+                                    }}
+                                    className="h-14 pl-12 pt-4 rounded-2xl border-border/50 bg-muted/30 focus:bg-background focus:ring-4 focus:ring-emerald-500/10 transition-all font-bold text-sm"
                                 />
                             </div>
                             {isInvalid && <FieldError className="text-[10px] font-black text-destructive mt-1 ml-2 uppercase" errors={field.state.meta.errors} />}

@@ -92,14 +92,14 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 gap-6">
                   <RoleCard 
                     icon={<User className="text-primary" size={32} />}
-                    title="Gourmet Patron"
+                    title="Register As Customer"
                     description="Discover, order, and indulge in exquisite local cuisines."
                     onClick={() => setRole("CUSTOMER")}
                     color="bg-primary/10"
                   />
                   <RoleCard 
                     icon={<Store className="text-emerald-500" size={32} />}
-                    title="Culinary Partner"
+                    title="Register A Restaurant"
                     description="Share your kitchen's magic and grow your food business."
                     onClick={() => setRole("PROVIDER")}
                     color="bg-emerald-500/10"
