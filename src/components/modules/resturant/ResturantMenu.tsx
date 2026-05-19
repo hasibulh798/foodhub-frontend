@@ -11,7 +11,7 @@ interface MealType {
   name: string;
   description: string;
   price: number;
-  imageUrl?: string | null;
+  images: string[];
   isAvailable: boolean;
   categoryId: string;
 }

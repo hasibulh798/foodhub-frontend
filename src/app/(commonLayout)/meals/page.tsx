@@ -30,7 +30,7 @@ interface Meal {
   name: string;
   description: string;
   price: number;
-  imageUrl?: string | null;
+  images: string[];
   isAvailable: boolean;
   dietaryType?: "VEG" | "NON_VEG" | "VEGAN" | null;
 }
